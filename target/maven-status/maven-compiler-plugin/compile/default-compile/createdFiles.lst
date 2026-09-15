@@ -1,0 +1,7 @@
+com\trianglefx\ui\MainView.class
+com\trianglefx\ui\TriangleDrawer.class
+module-info.class
+com\trianglefx\math\Line.class
+com\trianglefx\Main.class
+com\trianglefx\math\Point.class
+com\trianglefx\math\EquationParser.class
