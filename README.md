@@ -1,45 +1,28 @@
-# TriangleFX (JavaFX)
+# TriangleFX Project
 
-A JavaFX desktop application that draws a triangle from **three line equations** entered as text.
+This repository currently contains the **documentation phase** for a planned JavaFX application.
 
-The app:
-- Accepts 3 equations (for example: `x + y = 8`, `x - y = 2`, `x = 1`)
-- Computes pairwise intersections
-- Validates that the 3 intersections form a valid triangle
-- Draws the triangle on a canvas and labels vertex coordinates
+## Project Goal
 
-## Requirements
+The target application will allow a user to enter **three line equations** as text, compute their pairwise intersections, and draw the resulting triangle.
 
-- Java 17+
-- Maven 3.8+
+## Planned Features
 
-## Run
+- Accept 3 equations (example: `x + y = 8`, `x - y = 2`, `x = 1`)
+- Parse equations into line representations
+- Compute intersection points
+- Validate that intersections form a non-degenerate triangle
+- Draw the triangle and label vertex coordinates
 
-From project root:
+## Supported Equation Style (Planned)
 
-```bash
-mvn clean javafx:run
-```
-
-## Supported Equation Styles
-
-Equations should represent straight lines and include `x` and/or `y` terms, such as:
+Equations are expected in linear form using `x` and/or `y`, for example:
 
 - `x + y = 8`
 - `2x - 3y = 10`
 - `y = 2x + 1`
 - `x = 4`
 
-Spaces are optional. `*` in terms is optional (e.g., `2*x + y = 5` also works).
+## Current Repository Contents
 
-## Error Handling
-
-The app reports clear errors for cases like:
-- Missing or malformed equations
-- Parallel or identical lines
-- Intersections that do not form a valid triangle
-
-## Project Structure
-
-- `src/main/java/com/example/trianglefx/TriangleDrawerApp.java` — JavaFX application
-- `docs/PROBLEM_STATEMENT.md` — problem statement and scope
+- `docs/PROBLEM_STATEMENT.md` — formal problem statement and scope
