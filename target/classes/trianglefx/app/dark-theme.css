@@ -1,0 +1,37 @@
+.root {
+    -fx-base: #1f2329;
+    -fx-background: #12161c;
+    -fx-background-color: #12161c;
+    -fx-text-fill: #e6edf3;
+}
+
+.label {
+    -fx-text-fill: #e6edf3;
+}
+
+.text-field {
+    -fx-background-color: #1f2630;
+    -fx-text-fill: #e6edf3;
+    -fx-prompt-text-fill: #8b949e;
+    -fx-highlight-fill: #2f81f7;
+    -fx-highlight-text-fill: #ffffff;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.button {
+    -fx-background-color: #238636;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-font-weight: 600;
+}
+
+.button:hover {
+    -fx-background-color: #2ea043;
+}
+
+.button:pressed {
+    -fx-background-color: #1f6f2f;
+}
