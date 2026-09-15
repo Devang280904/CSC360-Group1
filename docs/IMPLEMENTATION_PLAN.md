@@ -12,20 +12,20 @@
 - **Exit Criteria:**
   - Team agrees documentation baseline is complete and aligned.
 
-## Phase 2 — Project Skeleton & Build Setup
+## Phase 2 — Project Skeleton & Build Setup ✅ (Completed)
 **Goal:** Set up runnable JavaFX project structure.
 
 - **Tasks:**
-  - Initialize Java project layout
-  - Configure JavaFX dependencies/build tooling
-  - Add application entry point
+  - Initialize Java project layout (`com.trianglefx`)
+  - Configure JavaFX dependencies/build tooling (`pom.xml` with Java 21, JavaFX 21, JUnit 5)
+  - Add application entry point (`Main.java`, `TriangleApp.java`)
 - **Deliverables:**
-  - Build configuration
-  - Base source structure
+  - `pom.xml`
+  - `src/main/java/com/trianglefx/Main.java`
 - **Exit Criteria:**
-  - Project builds and opens a blank JavaFX window.
+  - Project builds and opens JavaFX window.
 
-## Phase 3 — Equation Parser
+## Phase 3 — Equation Parser ✅ (Completed)
 **Goal:** Parse text equations into standard line form (`Ax + By = C`).
 
 - **Tasks:**
@@ -33,66 +33,75 @@
   - Normalize whitespace/signs/coefficients
   - Validate malformed inputs and unsupported forms
 - **Deliverables:**
-  - Parser module and input validation rules
+  - `src/main/java/com/trianglefx/parser/EquationParser.java`
+  - `src/main/java/com/trianglefx/parser/ParseException.java`
 - **Exit Criteria:**
   - All valid sample equations parse correctly; invalid ones return clear errors.
 
-## Phase 4 — Geometry Engine (Intersections + Triangle Validity)
+## Phase 4 — Geometry Engine (Intersections + Triangle Validity) ✅ (Completed)
 **Goal:** Compute vertices and determine if a valid triangle exists.
 
 - **Tasks:**
-  - Compute pairwise intersections: `P12`, `P23`, `P31`
+  - Compute pairwise intersections: `P12`, `P23`, `P31` using Cramer's rule
   - Handle parallel/coincident lines
-  - Reject degenerate triangles (duplicate points / collinear points)
+  - Reject degenerate triangles (duplicate points / collinear points / concurrent lines)
 - **Deliverables:**
-  - Geometry utility module
+  - `src/main/java/com/trianglefx/model/Point.java`
+  - `src/main/java/com/trianglefx/model/Line.java`
+  - `src/main/java/com/trianglefx/model/Triangle.java`
+  - `src/main/java/com/trianglefx/geometry/GeometryService.java`
+  - `src/main/java/com/trianglefx/geometry/GeometryException.java`
 - **Exit Criteria:**
   - Correct results for normal and edge-case inputs.
 
-## Phase 5 — UI Layout & Interaction
+## Phase 5 — UI Layout & Interaction ✅ (Completed)
 **Goal:** Build user interface for inputs, actions, and feedback.
 
 - **Tasks:**
   - Add 3 equation input fields
-  - Add action buttons (`Draw`, `Clear`)
-  - Add status/error message area
+  - Add action buttons (`Draw Triangle`, `Clear`, and 4 preset samples)
+  - Add status/error message area with responsive styling
+  - Add triangle properties card (vertices, sides, area, perimeter)
 - **Deliverables:**
-  - Functional JavaFX UI with wired handlers
+  - `src/main/java/com/trianglefx/ui/TriangleApp.java`
 - **Exit Criteria:**
   - User can input equations, trigger draw flow, and see feedback.
 
-## Phase 6 — Canvas Rendering
+## Phase 6 — Canvas Rendering ✅ (Completed)
 **Goal:** Draw the triangle and annotate key information.
 
 - **Tasks:**
-  - Map geometric coordinates to canvas coordinates
-  - Draw triangle edges/fill and vertex markers
-  - Optionally show vertex coordinate labels
+  - Map geometric coordinates to canvas coordinates with auto-scaling and aspect-ratio preservation
+  - Draw coordinate axes and background grid
+  - Draw the 3 extended line equations as dashed lines
+  - Draw triangle edges, semi-transparent fill, and vertex markers
+  - Show vertex coordinate labels offset away from the centroid
 - **Deliverables:**
-  - Rendering module integrated with geometry output
+  - `src/main/java/com/trianglefx/ui/TriangleCanvas.java`
 - **Exit Criteria:**
-  - Valid triangle is drawn clearly and consistently.
+  - Valid triangle is drawn clearly and consistently with auto-resizing.
 
-## Phase 7 — Testing & Quality Assurance
+## Phase 7 — Testing & Quality Assurance ✅ (Completed)
 **Goal:** Validate correctness, robustness, and usability.
 
 - **Tasks:**
-  - Unit tests for parser and geometry logic
-  - Manual UI tests for valid/invalid scenarios
-  - Fix defects from testing
+  - Unit tests for parser (`EquationParserTest.java`)
+  - Unit tests for geometry logic (`GeometryServiceTest.java`)
+  - Verification of edge cases (parallel, concurrent, coincident, decimals, reversed variables)
 - **Deliverables:**
-  - Test cases and bug-fix updates
+  - `src/test/java/com/trianglefx/parser/EquationParserTest.java`
+  - `src/test/java/com/trianglefx/geometry/GeometryServiceTest.java`
 - **Exit Criteria:**
-  - Core functionality passes tests with no critical defects.
+  - All 14 automated unit tests pass without failure.
 
-## Phase 8 — Finalization & Submission Readiness
+## Phase 8 — Finalization & Submission Readiness ✅ (Completed)
 **Goal:** Prepare for demo/submission.
 
 - **Tasks:**
   - Final code cleanup/refactor
   - Update README with run/use instructions
-  - Add screenshots/demo notes (optional)
 - **Deliverables:**
-  - Final codebase and polished documentation
+  - Updated `README.md`
+  - Complete, functional codebase
 - **Exit Criteria:**
   - Project is demo-ready and submission-ready.
