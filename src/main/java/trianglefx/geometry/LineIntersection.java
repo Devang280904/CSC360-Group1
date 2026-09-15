@@ -26,12 +26,17 @@ public final class LineIntersection {
 	 * Result of attempting to intersect two lines.
 	 *
 	 * @param type relationship between the lines
-	 * @param point intersection point when type is INTERSECTING, otherwise null
+	 * @param point intersection point when {@code type} is {@link Type#INTERSECTING}; otherwise {@code null}
 	 */
 	public record Result(Type type, Point point) {}
 
 	/**
-	 * Finds the intersection relationship for two lines in standard form (Ax + By = C).
+	 * Finds the relationship and, if unique, the intersection point for two lines.
+	 *
+	 * @param l1 first line in standard form
+	 * @param l2 second line in standard form
+	 * @return intersection classification and point (if unique)
+	 * @throws NullPointerException if either input line is {@code null}
 	 */
 	public static Result find(LineEquation l1, LineEquation l2) {
 		Objects.requireNonNull(l1, "l1 must not be null");
@@ -52,6 +57,13 @@ public final class LineIntersection {
 		return new Result(Type.INTERSECTING, new Point(x, y));
 	}
 
+	/**
+	 * Checks whether two equations represent the same geometric line.
+	 *
+	 * @param l1 first line
+	 * @param l2 second line
+	 * @return {@code true} if lines are coincident
+	 */
 	private static boolean areCoincident(LineEquation l1, LineEquation l2) {
 		double ab = l1.a() * l2.b() - l2.a() * l1.b();
 		double ac = l1.a() * l2.c() - l2.a() * l1.c();

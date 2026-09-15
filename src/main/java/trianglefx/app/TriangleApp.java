@@ -22,10 +22,10 @@ import trianglefx.geometry.Point;
 import trianglefx.geometry.TriangleValidator;
 
 /**
- * JavaFX client that accepts three equations in "a b c" format (ax + by = c),
+ * JavaFX client that accepts three equations in {@code a b c} format ({@code ax + by = c}),
  * computes pairwise intersections, validates triangle existence, and draws it.
  *
- * Canvas supports pan/zoom navigation for an effectively infinite coordinate plane.
+ * <p>The canvas supports panning and zooming to navigate an effectively infinite coordinate plane.</p>
  */
 public final class TriangleApp extends Application {
 
@@ -64,6 +64,11 @@ public final class TriangleApp extends Application {
 	private double dragStartCenterX;
 	private double dragStartCenterY;
 
+	/**
+	 * Initializes and shows the main JavaFX window.
+	 *
+	 * @param stage primary stage provided by JavaFX
+	 */
 	@Override
 	public void start(Stage stage) {
 		eq1Field = new TextField("1 1 8");
@@ -141,6 +146,10 @@ public final class TriangleApp extends Application {
 		redrawCanvas();
 	}
 
+	/**
+	 * Handles Draw action: parses inputs, computes intersections, validates the triangle,
+	 * fits viewport, and redraws.
+	 */
 	private void onDraw() {
 		try {
 			LineEquation l1 = parseLine(eq1Field.getText(), "Equation 1");
@@ -200,6 +209,9 @@ public final class TriangleApp extends Application {
 		}
 	}
 
+	/**
+	 * Clears user input, removes the currently drawn triangle, and resets the viewport.
+	 */
 	private void onClear() {
 		eq1Field.clear();
 		eq2Field.clear();
@@ -212,6 +224,14 @@ public final class TriangleApp extends Application {
 		statusLabel.setText("Cleared. Enter equations as: a b c");
 	}
 
+	/**
+	 * Parses one equation text in {@code a b c} format into a line equation.
+	 *
+	 * @param raw raw input text
+	 * @param label field label used in error messages
+	 * @return parsed line equation
+	 * @throws IllegalArgumentException if the input is empty, badly formatted, or non-numeric
+	 */
 	private LineEquation parseLine(String raw, String label) {
 		if (raw == null || raw.trim().isEmpty()) {
 			throw new IllegalArgumentException(
@@ -239,6 +259,15 @@ public final class TriangleApp extends Application {
 		}
 	}
 
+	/**
+	 * Computes a unique intersection between two lines or throws a descriptive exception.
+	 *
+	 * @param l1 first line
+	 * @param l2 second line
+	 * @param label label identifying the pair in error text
+	 * @return intersection point when it exists uniquely
+	 * @throws IllegalArgumentException if the lines are parallel or coincident
+	 */
 	private Point uniqueIntersectionOrThrow(
 		LineEquation l1,
 		LineEquation l2,
@@ -257,6 +286,9 @@ public final class TriangleApp extends Application {
 		};
 	}
 
+	/**
+	 * Installs mouse handlers for panning and wheel-based zooming.
+	 */
 	private void installPanAndZoomHandlers() {
 		canvas.setOnMousePressed(event -> {
 			dragStartX = event.getX();
@@ -285,6 +317,11 @@ public final class TriangleApp extends Application {
 		});
 	}
 
+	/**
+	 * Zooms around the current center of the canvas.
+	 *
+	 * @param zoomFactor multiplicative zoom factor (>1 zoom in, <1 zoom out)
+	 */
 	private void zoomAroundCanvasCenter(double zoomFactor) {
 		zoomAroundScreenPoint(
 			canvas.getWidth() / 2.0,
@@ -293,6 +330,13 @@ public final class TriangleApp extends Application {
 		);
 	}
 
+	/**
+	 * Zooms around a specific screen anchor so that point remains stable during zoom.
+	 *
+	 * @param screenX anchor x-coordinate on canvas
+	 * @param screenY anchor y-coordinate on canvas
+	 * @param zoomFactor multiplicative zoom factor
+	 */
 	private void zoomAroundScreenPoint(
 		double screenX,
 		double screenY,
@@ -320,6 +364,9 @@ public final class TriangleApp extends Application {
 		redrawCanvas();
 	}
 
+	/**
+	 * Resets the viewport center and scale to defaults.
+	 */
 	private void resetView() {
 		viewCenterX = 0;
 		viewCenterY = 0;
@@ -327,6 +374,9 @@ public final class TriangleApp extends Application {
 		redrawCanvas();
 	}
 
+	/**
+	 * Draws the reference background for the current viewport without any triangle.
+	 */
 	private void clearCanvas() {
 		if (canvas.getWidth() <= 0 || canvas.getHeight() <= 0) {
 			return;
@@ -334,6 +384,9 @@ public final class TriangleApp extends Application {
 		drawReferenceBackground(currentTransform());
 	}
 
+	/**
+	 * Redraws the canvas state (background and, if present, the last triangle).
+	 */
 	private void redrawCanvas() {
 		if (lastP12 != null && lastP23 != null && lastP31 != null) {
 			drawTriangle(lastP12, lastP23, lastP31);
@@ -342,6 +395,13 @@ public final class TriangleApp extends Application {
 		}
 	}
 
+	/**
+	 * Draws the triangle for the supplied world-space points.
+	 *
+	 * @param p1 first vertex
+	 * @param p2 second vertex
+	 * @param p3 third vertex
+	 */
 	private void drawTriangle(Point p1, Point p2, Point p3) {
 		Transform transform = currentTransform();
 		drawReferenceBackground(transform);
@@ -367,6 +427,14 @@ public final class TriangleApp extends Application {
 		drawVertex(gc, s3, "P31", p3);
 	}
 
+	/**
+	 * Draws a single vertex marker with label.
+	 *
+	 * @param gc graphics context
+	 * @param sp screen-space position
+	 * @param label vertex label
+	 * @param worldPoint original world-space point (for coordinates in label)
+	 */
 	private void drawVertex(
 		GraphicsContext gc,
 		ScreenPoint sp,
@@ -390,6 +458,13 @@ public final class TriangleApp extends Application {
 		);
 	}
 
+	/**
+	 * Adjusts viewport center and scale so the triangle (and origin) fit comfortably.
+	 *
+	 * @param p1 first triangle point
+	 * @param p2 second triangle point
+	 * @param p3 third triangle point
+	 */
 	private void fitViewToTriangle(Point p1, Point p2, Point p3) {
 		if (canvas.getWidth() <= 0 || canvas.getHeight() <= 0) {
 			return;
@@ -439,6 +514,11 @@ public final class TriangleApp extends Application {
 		);
 	}
 
+	/**
+	 * Builds the current viewport transform from center and zoom state.
+	 *
+	 * @return world-to-screen transform values
+	 */
 	private Transform currentTransform() {
 		double usableW = Math.max(1, canvas.getWidth() - 2 * MARGIN);
 		double usableH = Math.max(1, canvas.getHeight() - 2 * MARGIN);
@@ -454,6 +534,11 @@ public final class TriangleApp extends Application {
 		return new Transform(minX, maxX, minY, maxY, pixelsPerUnit);
 	}
 
+	/**
+	 * Draws the reference background: dark canvas, grid, axes, and origin marker.
+	 *
+	 * @param transform active viewport transform
+	 */
 	private void drawReferenceBackground(Transform transform) {
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.setFill(CANVAS_BG);
@@ -509,6 +594,12 @@ public final class TriangleApp extends Application {
 		}
 	}
 
+	/**
+	 * Selects a "nice" world-unit grid step so spacing remains readable while zooming.
+	 *
+	 * @param scale current pixels-per-world-unit scale
+	 * @return chosen world-unit step between adjacent grid lines
+	 */
 	private double chooseGridStep(double scale) {
 		double targetWorldUnits = TARGET_GRID_SPACING_PX / scale;
 		double base = Math.pow(10, Math.floor(Math.log10(targetWorldUnits)));
@@ -528,22 +619,48 @@ public final class TriangleApp extends Application {
 		return best;
 	}
 
+	/**
+	 * Converts world coordinates to screen coordinates.
+	 *
+	 * @param world world-space point
+	 * @param t active transform
+	 * @return projected screen-space point
+	 */
 	private ScreenPoint toScreen(Point world, Transform t) {
 		double x = MARGIN + (world.x() - t.minX) * t.scale;
 		double y = canvas.getHeight() - MARGIN - (world.y() - t.minY) * t.scale;
 		return new ScreenPoint(x, y);
 	}
 
+	/**
+	 * Converts screen coordinates to world coordinates.
+	 *
+	 * @param screenX screen x
+	 * @param screenY screen y
+	 * @param t active transform
+	 * @return corresponding world-space point
+	 */
 	private Point screenToWorld(double screenX, double screenY, Transform t) {
 		double x = t.minX + (screenX - MARGIN) / t.scale;
 		double y = t.minY + (canvas.getHeight() - MARGIN - screenY) / t.scale;
 		return new Point(x, y);
 	}
 
+	/**
+	 * Clamps a scalar value to the inclusive range [{@code min}, {@code max}].
+	 *
+	 * @param value input value
+	 * @param min lower bound
+	 * @param max upper bound
+	 * @return clamped value
+	 */
 	private double clamp(double value, double min, double max) {
 		return Math.max(min, Math.min(max, value));
 	}
 
+	/**
+	 * Immutable viewport transform describing world bounds and current scale.
+	 */
 	private static final class Transform {
 
 		private final double minX;
@@ -552,6 +669,15 @@ public final class TriangleApp extends Application {
 		private final double maxY;
 		private final double scale;
 
+		/**
+		 * Creates a transform snapshot.
+		 *
+		 * @param minX minimum visible world x
+		 * @param maxX maximum visible world x
+		 * @param minY minimum visible world y
+		 * @param maxY maximum visible world y
+		 * @param scale pixels per world unit
+		 */
 		private Transform(
 			double minX,
 			double maxX,
@@ -567,17 +693,31 @@ public final class TriangleApp extends Application {
 		}
 	}
 
+	/**
+	 * Immutable 2D point in screen pixel space.
+	 */
 	private static final class ScreenPoint {
 
 		private final double x;
 		private final double y;
 
+		/**
+		 * Creates a screen-space point.
+		 *
+		 * @param x x-coordinate in pixels
+		 * @param y y-coordinate in pixels
+		 */
 		private ScreenPoint(double x, double y) {
 			this.x = x;
 			this.y = y;
 		}
 	}
 
+	/**
+	 * Application entry point.
+	 *
+	 * @param args command-line arguments
+	 */
 	public static void main(String[] args) {
 		launch(args);
 	}

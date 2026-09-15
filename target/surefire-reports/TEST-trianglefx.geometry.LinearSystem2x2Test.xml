@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="trianglefx.geometry.LinearSystem2x2Test" time="0.006" tests="8" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="trianglefx.geometry.LinearSystem2x2Test" time="0.009" tests="8" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="26"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -12,7 +12,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="001"/>
     <property name="sun.boot.library.path" value="/opt/homebrew/Cellar/openjdk/26.0.2/libexec/openjdk.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/drumilbhati/Documents/Github/CSC360-Group1/target/surefire/surefirebooter-20260915153208342_3.jar /Users/drumilbhati/Documents/Github/CSC360-Group1/target/surefire 2026-09-15T15-32-08_297-jvmRun1 surefire-20260915153208342_1tmp surefire_0-20260915153208342_2tmp"/>
+    <property name="sun.java.command" value="/Users/drumilbhati/Documents/Github/CSC360-Group1/target/surefire/surefirebooter-20260915154245750_3.jar /Users/drumilbhati/Documents/Github/CSC360-Group1/target/surefire 2026-09-15T15-42-45_707-jvmRun1 surefire-20260915154245750_1tmp surefire_0-20260915154245750_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/Users/drumilbhati/Documents/Github/CSC360-Group1/target/test-classes:/Users/drumilbhati/Documents/Github/CSC360-Group1/target/classes:/Users/drumilbhati/.m2/repository/org/openjfx/javafx-controls/21.0.5/javafx-controls-21.0.5.jar:/Users/drumilbhati/.m2/repository/org/openjfx/javafx-controls/21.0.5/javafx-controls-21.0.5-mac-aarch64.jar:/Users/drumilbhati/.m2/repository/org/openjfx/javafx-graphics/21.0.5/javafx-graphics-21.0.5.jar:/Users/drumilbhati/.m2/repository/org/openjfx/javafx-graphics/21.0.5/javafx-graphics-21.0.5-mac-aarch64.jar:/Users/drumilbhati/.m2/repository/org/openjfx/javafx-base/21.0.5/javafx-base-21.0.5.jar:/Users/drumilbhati/.m2/repository/org/openjfx/javafx-base/21.0.5/javafx-base-21.0.5-mac-aarch64.jar:/Users/drumilbhati/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.2/junit-jupiter-5.10.2.jar:/Users/drumilbhati/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.2/junit-jupiter-api-5.10.2.jar:/Users/drumilbhati/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/drumilbhati/.m2/repository/org/junit/platform/junit-platform-commons/1.10.2/junit-platform-commons-1.10.2.jar:/Users/drumilbhati/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/drumilbhati/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.2/junit-jupiter-params-5.10.2.jar:/Users/drumilbhati/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.2/junit-jupiter-engine-5.10.2.jar:/Users/drumilbhati/.m2/repository/org/junit/platform/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -28,7 +28,7 @@
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="apple.awt.application.name" value="ForkedBooter"/>
-    <property name="surefire.real.class.path" value="/Users/drumilbhati/Documents/Github/CSC360-Group1/target/surefire/surefirebooter-20260915153208342_3.jar"/>
+    <property name="surefire.real.class.path" value="/Users/drumilbhati/Documents/Github/CSC360-Group1/target/surefire/surefirebooter-20260915154245750_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="26.0.2"/>
     <property name="user.name" value="drumilbhati"/>
@@ -56,12 +56,12 @@
     <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
     <property name="java.class.version" value="70.0"/>
   </properties>
-  <testcase name="rejectsNullInputs" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.001"/>
-  <testcase name="detectsNoSolutionForParallelInconsistentSystem" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.0"/>
-  <testcase name="solvesUniqueSolutionWithScalarInputs" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.0"/>
-  <testcase name="solvesFromLineEquations" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.001"/>
-  <testcase name="rejectsInvalidVectorLength" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.0"/>
+  <testcase name="rejectsNullInputs" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.0"/>
+  <testcase name="detectsNoSolutionForParallelInconsistentSystem" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.002"/>
+  <testcase name="solvesUniqueSolutionWithScalarInputs" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.001"/>
+  <testcase name="solvesFromLineEquations" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.0"/>
+  <testcase name="rejectsInvalidVectorLength" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.001"/>
   <testcase name="rejectsInvalidMatrixShapes" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.0"/>
-  <testcase name="detectsInfiniteSolutionsForCoincidentSystem" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.001"/>
+  <testcase name="detectsInfiniteSolutionsForCoincidentSystem" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.0"/>
   <testcase name="solvesUniqueSolutionWithMatrixInputs" classname="trianglefx.geometry.LinearSystem2x2Test" time="0.0"/>
 </testsuite>
