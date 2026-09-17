@@ -8,7 +8,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -24,17 +23,12 @@ import trianglefx.geometry.TriangleValidator;
 /**
  * JavaFX client that accepts three equations in {@code a b c} format ({@code ax + by = c}),
  * computes pairwise intersections, validates triangle existence, and draws it.
- *
- * <p>The canvas supports panning and zooming to navigate an effectively infinite coordinate plane.</p>
  */
 public final class TriangleApp extends Application {
 
 	private static final double MARGIN = 20;
 	private static final double TARGET_GRID_SPACING_PX = 60;
 	private static final double EPSILON = 1e-10;
-
-	private static final double MIN_PIXELS_PER_UNIT = 5;
-	private static final double MAX_PIXELS_PER_UNIT = 5_000;
 
 	private static final Color CANVAS_BG = Color.rgb(13, 17, 23);
 	private static final Color GRID_COLOR = Color.rgb(48, 54, 61);
@@ -55,15 +49,6 @@ public final class TriangleApp extends Application {
 	private Point lastP23;
 	private Point lastP31;
 
-	private double viewCenterX = 0;
-	private double viewCenterY = 0;
-	private double pixelsPerUnit = 40;
-
-	private double dragStartX;
-	private double dragStartY;
-	private double dragStartCenterX;
-	private double dragStartCenterY;
-
 	/**
 	 * Initializes and shows the main JavaFX window.
 	 *
@@ -76,7 +61,7 @@ public final class TriangleApp extends Application {
 		eq3Field = new TextField("1 0 1");
 
 		statusLabel = new Label(
-			"Enter 3 equations as: a b c (ax + by = c). Drag canvas to pan, mouse wheel to zoom."
+			"Enter 3 equations as: a b c (ax + by = c). Click Draw to render triangle."
 		);
 		canvas = new Canvas(1, 1);
 
@@ -86,15 +71,6 @@ public final class TriangleApp extends Application {
 		Button clearButton = new Button("Clear");
 		clearButton.setOnAction(event -> onClear());
 
-		Button zoomInButton = new Button("Zoom In");
-		zoomInButton.setOnAction(event -> zoomAroundCanvasCenter(1.15));
-
-		Button zoomOutButton = new Button("Zoom Out");
-		zoomOutButton.setOnAction(event -> zoomAroundCanvasCenter(1.0 / 1.15));
-
-		Button resetViewButton = new Button("Reset View");
-		resetViewButton.setOnAction(event -> resetView());
-
 		GridPane inputs = new GridPane();
 		inputs.setHgap(10);
 		inputs.setVgap(8);
@@ -102,14 +78,7 @@ public final class TriangleApp extends Application {
 		inputs.addRow(1, new Label("Equation 2 (a b c):"), eq2Field);
 		inputs.addRow(2, new Label("Equation 3 (a b c):"), eq3Field);
 
-		HBox controls = new HBox(
-			10,
-			drawButton,
-			clearButton,
-			zoomInButton,
-			zoomOutButton,
-			resetViewButton
-		);
+		HBox controls = new HBox(10, drawButton, clearButton);
 
 		VBox top = new VBox(10, inputs, controls, statusLabel);
 		top.setPadding(new Insets(12));
@@ -124,8 +93,6 @@ public final class TriangleApp extends Application {
 		canvas
 			.heightProperty()
 			.addListener((obs, oldVal, newVal) -> redrawCanvas());
-
-		installPanAndZoomHandlers();
 
 		BorderPane root = new BorderPane();
 		root.setTop(top);
@@ -148,7 +115,7 @@ public final class TriangleApp extends Application {
 
 	/**
 	 * Handles Draw action: parses inputs, computes intersections, validates the triangle,
-	 * fits viewport, and redraws.
+	 * and redraws if valid.
 	 */
 	private void onDraw() {
 		try {
@@ -186,7 +153,6 @@ public final class TriangleApp extends Application {
 			lastP12 = p12;
 			lastP23 = p23;
 			lastP31 = p31;
-			fitViewToTriangle(p12, p23, p31);
 			redrawCanvas();
 
 			statusLabel.setText(
@@ -210,7 +176,7 @@ public final class TriangleApp extends Application {
 	}
 
 	/**
-	 * Clears user input, removes the currently drawn triangle, and resets the viewport.
+	 * Clears user input and removes the currently drawn triangle.
 	 */
 	private void onClear() {
 		eq1Field.clear();
@@ -219,8 +185,7 @@ public final class TriangleApp extends Application {
 		lastP12 = null;
 		lastP23 = null;
 		lastP31 = null;
-
-		resetView();
+		clearCanvas();
 		statusLabel.setText("Cleared. Enter equations as: a b c");
 	}
 
@@ -287,101 +252,13 @@ public final class TriangleApp extends Application {
 	}
 
 	/**
-	 * Installs mouse handlers for panning and wheel-based zooming.
-	 */
-	private void installPanAndZoomHandlers() {
-		canvas.setOnMousePressed(event -> {
-			dragStartX = event.getX();
-			dragStartY = event.getY();
-			dragStartCenterX = viewCenterX;
-			dragStartCenterY = viewCenterY;
-		});
-
-		canvas.setOnMouseDragged(event -> {
-			double dx = event.getX() - dragStartX;
-			double dy = event.getY() - dragStartY;
-
-			viewCenterX = dragStartCenterX - dx / pixelsPerUnit;
-			viewCenterY = dragStartCenterY + dy / pixelsPerUnit;
-			redrawCanvas();
-		});
-
-		canvas.addEventHandler(ScrollEvent.SCROLL, event -> {
-			if (event.getDeltaY() == 0) {
-				return;
-			}
-
-			double zoomFactor = event.getDeltaY() > 0 ? 1.10 : 1.0 / 1.10;
-			zoomAroundScreenPoint(event.getX(), event.getY(), zoomFactor);
-			event.consume();
-		});
-	}
-
-	/**
-	 * Zooms around the current center of the canvas.
-	 *
-	 * @param zoomFactor multiplicative zoom factor (>1 zoom in, <1 zoom out)
-	 */
-	private void zoomAroundCanvasCenter(double zoomFactor) {
-		zoomAroundScreenPoint(
-			canvas.getWidth() / 2.0,
-			canvas.getHeight() / 2.0,
-			zoomFactor
-		);
-	}
-
-	/**
-	 * Zooms around a specific screen anchor so that point remains stable during zoom.
-	 *
-	 * @param screenX anchor x-coordinate on canvas
-	 * @param screenY anchor y-coordinate on canvas
-	 * @param zoomFactor multiplicative zoom factor
-	 */
-	private void zoomAroundScreenPoint(
-		double screenX,
-		double screenY,
-		double zoomFactor
-	) {
-		if (canvas.getWidth() <= 0 || canvas.getHeight() <= 0) {
-			return;
-		}
-
-		Transform before = currentTransform();
-		Point anchorWorld = screenToWorld(screenX, screenY, before);
-
-		pixelsPerUnit = clamp(
-			pixelsPerUnit * zoomFactor,
-			MIN_PIXELS_PER_UNIT,
-			MAX_PIXELS_PER_UNIT
-		);
-
-		Transform after = currentTransform();
-		Point movedAnchor = screenToWorld(screenX, screenY, after);
-
-		viewCenterX += anchorWorld.x() - movedAnchor.x();
-		viewCenterY += anchorWorld.y() - movedAnchor.y();
-
-		redrawCanvas();
-	}
-
-	/**
-	 * Resets the viewport center and scale to defaults.
-	 */
-	private void resetView() {
-		viewCenterX = 0;
-		viewCenterY = 0;
-		pixelsPerUnit = 40;
-		redrawCanvas();
-	}
-
-	/**
-	 * Draws the reference background for the current viewport without any triangle.
+	 * Draws the reference background for the default viewport without any triangle.
 	 */
 	private void clearCanvas() {
 		if (canvas.getWidth() <= 0 || canvas.getHeight() <= 0) {
 			return;
 		}
-		drawReferenceBackground(currentTransform());
+		drawReferenceBackground(defaultTransform());
 	}
 
 	/**
@@ -403,7 +280,7 @@ public final class TriangleApp extends Application {
 	 * @param p3 third vertex
 	 */
 	private void drawTriangle(Point p1, Point p2, Point p3) {
-		Transform transform = currentTransform();
+		Transform transform = fitTransformForTriangle(p1, p2, p3);
 		drawReferenceBackground(transform);
 
 		ScreenPoint s1 = toScreen(p1, transform);
@@ -459,17 +336,14 @@ public final class TriangleApp extends Application {
 	}
 
 	/**
-	 * Adjusts viewport center and scale so the triangle (and origin) fit comfortably.
+	 * Creates a transform that auto-fits the triangle (and origin) into the current canvas.
 	 *
-	 * @param p1 first triangle point
-	 * @param p2 second triangle point
-	 * @param p3 third triangle point
+	 * @param p1 first point
+	 * @param p2 second point
+	 * @param p3 third point
+	 * @return fitted transform
 	 */
-	private void fitViewToTriangle(Point p1, Point p2, Point p3) {
-		if (canvas.getWidth() <= 0 || canvas.getHeight() <= 0) {
-			return;
-		}
-
+	private Transform fitTransformForTriangle(Point p1, Point p2, Point p3) {
 		double minX = Math.min(0, Math.min(p1.x(), Math.min(p2.x(), p3.x())));
 		double maxX = Math.max(0, Math.max(p1.x(), Math.max(p2.x(), p3.x())));
 		double minY = Math.min(0, Math.min(p1.y(), Math.min(p2.y(), p3.y())));
@@ -479,14 +353,14 @@ public final class TriangleApp extends Application {
 		double worldH = maxY - minY;
 
 		if (worldW < 1) {
-			worldW = 2;
 			minX -= 1;
 			maxX += 1;
+			worldW = maxX - minX;
 		}
 		if (worldH < 1) {
-			worldH = 2;
 			minY -= 1;
 			maxY += 1;
+			worldH = maxY - minY;
 		}
 
 		double padX = worldW * 0.20;
@@ -496,42 +370,44 @@ public final class TriangleApp extends Application {
 		minY -= padY;
 		maxY += padY;
 
-		worldW = maxX - minX;
-		worldH = maxY - minY;
+		return buildTransform(minX, maxX, minY, maxY);
+	}
+
+	/**
+	 * Creates a default transform centered around the origin.
+	 *
+	 * @return default transform
+	 */
+	private Transform defaultTransform() {
+		return buildTransform(-10, 10, -10, 10);
+	}
+
+	/**
+	 * Builds a transform from world bounds and current canvas size.
+	 *
+	 * @param minX minimum world x
+	 * @param maxX maximum world x
+	 * @param minY minimum world y
+	 * @param maxY maximum world y
+	 * @return transform with visible bounds and pixel scale
+	 */
+	private Transform buildTransform(
+		double minX,
+		double maxX,
+		double minY,
+		double maxY
+	) {
+		double worldW = maxX - minX;
+		double worldH = maxY - minY;
 
 		double usableW = Math.max(1, canvas.getWidth() - 2 * MARGIN);
 		double usableH = Math.max(1, canvas.getHeight() - 2 * MARGIN);
 
 		double scaleX = usableW / worldW;
 		double scaleY = usableH / worldH;
+		double scale = Math.min(scaleX, scaleY);
 
-		viewCenterX = (minX + maxX) / 2.0;
-		viewCenterY = (minY + maxY) / 2.0;
-		pixelsPerUnit = clamp(
-			Math.min(scaleX, scaleY),
-			MIN_PIXELS_PER_UNIT,
-			MAX_PIXELS_PER_UNIT
-		);
-	}
-
-	/**
-	 * Builds the current viewport transform from center and zoom state.
-	 *
-	 * @return world-to-screen transform values
-	 */
-	private Transform currentTransform() {
-		double usableW = Math.max(1, canvas.getWidth() - 2 * MARGIN);
-		double usableH = Math.max(1, canvas.getHeight() - 2 * MARGIN);
-
-		double worldW = usableW / pixelsPerUnit;
-		double worldH = usableH / pixelsPerUnit;
-
-		double minX = viewCenterX - worldW / 2.0;
-		double maxX = viewCenterX + worldW / 2.0;
-		double minY = viewCenterY - worldH / 2.0;
-		double maxY = viewCenterY + worldH / 2.0;
-
-		return new Transform(minX, maxX, minY, maxY, pixelsPerUnit);
+		return new Transform(minX, maxX, minY, maxY, scale);
 	}
 
 	/**
@@ -595,7 +471,7 @@ public final class TriangleApp extends Application {
 	}
 
 	/**
-	 * Selects a "nice" world-unit grid step so spacing remains readable while zooming.
+	 * Selects a "nice" world-unit grid step so spacing remains readable.
 	 *
 	 * @param scale current pixels-per-world-unit scale
 	 * @return chosen world-unit step between adjacent grid lines
@@ -630,32 +506,6 @@ public final class TriangleApp extends Application {
 		double x = MARGIN + (world.x() - t.minX) * t.scale;
 		double y = canvas.getHeight() - MARGIN - (world.y() - t.minY) * t.scale;
 		return new ScreenPoint(x, y);
-	}
-
-	/**
-	 * Converts screen coordinates to world coordinates.
-	 *
-	 * @param screenX screen x
-	 * @param screenY screen y
-	 * @param t active transform
-	 * @return corresponding world-space point
-	 */
-	private Point screenToWorld(double screenX, double screenY, Transform t) {
-		double x = t.minX + (screenX - MARGIN) / t.scale;
-		double y = t.minY + (canvas.getHeight() - MARGIN - screenY) / t.scale;
-		return new Point(x, y);
-	}
-
-	/**
-	 * Clamps a scalar value to the inclusive range [{@code min}, {@code max}].
-	 *
-	 * @param value input value
-	 * @param min lower bound
-	 * @param max upper bound
-	 * @return clamped value
-	 */
-	private double clamp(double value, double min, double max) {
-		return Math.max(min, Math.min(max, value));
 	}
 
 	/**
