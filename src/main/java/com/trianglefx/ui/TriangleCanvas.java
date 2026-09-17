@@ -11,43 +11,86 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 /**
- * A responsive canvas pane for rendering the triangle, coordinate grid, and line equations.
+ * The digital artist and canvas display of the application.
+ * <p>
+ * <b>How this canvas works (0 to 100 Guide):</b>
+ * </p>
+ * <ol>
+ *   <li><b>Coordinate Mapping:</b> In math on graph paper, {@code (0, 0)} is in the center and {@code y} goes UP.
+ *       On a computer screen, pixel {@code (0, 0)} is at the top-left corner and pixel {@code y} goes DOWN.
+ *       This class automatically converts mathematical coordinates into pixel coordinates on your monitor.</li>
+ *   <li><b>Auto-Centering &amp; Zooming:</b> It calculates the size of the triangle and automatically scales
+ *       it up or down with comfortable margins so it fits perfectly on your screen without distortion.</li>
+ *   <li><b>Background Grid &amp; Axes:</b> Draws a subtle slate coordinate grid and labels the X and Y axes.</li>
+ *   <li><b>Extended Dashed Lines:</b> Draws the 3 infinite boundary lines in distinct colors (Rose, Emerald, Amber)
+ *       so you can clearly see where the lines come from and how they cross.</li>
+ *   <li><b>Triangle Shape:</b> Fills the interior with a glowing semi-transparent Indigo polygon and outlines the edges.</li>
+ *   <li><b>Corner Badges:</b> Marks the corners (A, B, C) with glowing cyan dots and labels showing exact coordinates.</li>
+ * </ol>
  */
 public class TriangleCanvas extends Pane {
 
+    /** Internal JavaFX Canvas drawing surface. */
     private final Canvas canvas = new Canvas();
+
+    /** The current triangle being displayed, or null if empty. */
     private Triangle currentTriangle = null;
 
-    private static final Color BG_COLOR = Color.web("#0F172A");        // Slate 900
-    private static final Color GRID_COLOR = Color.web("#1E293B");      // Slate 800
-    private static final Color AXIS_COLOR = Color.web("#334155");      // Slate 700
-    private static final Color TRIANGLE_FILL = Color.web("#6366F1", 0.25); // Indigo with alpha
-    private static final Color TRIANGLE_STROKE = Color.web("#818CF8"); // Indigo light
-    private static final Color EXTENDED_LINE_1 = Color.web("#F43F5E", 0.45); // Rose
-    private static final Color EXTENDED_LINE_2 = Color.web("#10B981", 0.45); // Emerald
-    private static final Color EXTENDED_LINE_3 = Color.web("#F59E0B", 0.45); // Amber
-    private static final Color VERTEX_COLOR = Color.web("#38BDF8");    // Sky blue
-    private static final Color TEXT_COLOR = Color.web("#F8FAFC");      // Slate 50
+    /** Background fill color: Deep Slate 900 (#0F172A). */
+    private static final Color BG_COLOR = Color.web("#0F172A");
+    /** Background grid lines color: Slate 800 (#1E293B). */
+    private static final Color GRID_COLOR = Color.web("#1E293B");
+    /** Coordinate axes (X and Y) color: Slate 700 (#334155). */
+    private static final Color AXIS_COLOR = Color.web("#334155");
+    /** Inside triangle shaded fill color: Indigo with transparency (#6366F1, 25% opacity). */
+    private static final Color TRIANGLE_FILL = Color.web("#6366F1", 0.25);
+    /** Triangle outer border color: Bright Indigo light (#818CF8). */
+    private static final Color TRIANGLE_STROKE = Color.web("#818CF8");
+    /** Line 1 extended boundary color: Rose (#F43F5E). */
+    private static final Color EXTENDED_LINE_1 = Color.web("#F43F5E", 0.45);
+    /** Line 2 extended boundary color: Emerald (#10B981). */
+    private static final Color EXTENDED_LINE_2 = Color.web("#10B981", 0.45);
+    /** Line 3 extended boundary color: Amber (#F59E0B). */
+    private static final Color EXTENDED_LINE_3 = Color.web("#F59E0B", 0.45);
+    /** Corner dots and indicator color: Sky Blue (#38BDF8). */
+    private static final Color VERTEX_COLOR = Color.web("#38BDF8");
+    /** Main text color: Slate 50 (#F8FAFC). */
+    private static final Color TEXT_COLOR = Color.web("#F8FAFC");
 
+    /**
+     * Creates a new canvas and binds its width and height to auto-resize with the window.
+     */
     public TriangleCanvas() {
         getChildren().add(canvas);
         canvas.widthProperty().bind(widthProperty());
         canvas.heightProperty().bind(heightProperty());
 
+        // Whenever user resizes the window, repaint the canvas automatically
         widthProperty().addListener((obs, oldVal, newVal) -> redraw());
         heightProperty().addListener((obs, oldVal, newVal) -> redraw());
     }
 
+    /**
+     * Hands a new triangle to the canvas and paints it immediately.
+     *
+     * @param triangle the verified {@link Triangle} to draw
+     */
     public void setTriangle(Triangle triangle) {
         this.currentTriangle = triangle;
         redraw();
     }
 
+    /**
+     * Wipes the canvas clean and shows the initial helper instructions.
+     */
     public void clear() {
         this.currentTriangle = null;
         redraw();
     }
 
+    /**
+     * Master repaint method that clears the screen and decides whether to draw the placeholder or triangle.
+     */
     private void redraw() {
         double w = getWidth();
         double h = getHeight();
@@ -65,17 +108,31 @@ public class TriangleCanvas extends Pane {
         drawTriangleScene(gc, w, h, currentTriangle);
     }
 
+    /**
+     * Draws an empty grid and a friendly prompt when no triangle has been generated yet.
+     *
+     * @param gc 2D drawing paintbrush
+     * @param w  screen width in pixels
+     * @param h  screen height in pixels
+     */
     private void drawPlaceholder(GraphicsContext gc, double w, double h) {
-        // Draw subtle background grid
         drawGrid(gc, w, h, 40);
 
         gc.setFill(Color.web("#64748B"));
         gc.setFont(Font.font("System", FontWeight.NORMAL, 14));
-        String message = "Enter three linear equations and click 'Draw Triangle'";
+        String message = "Enter matrix coefficients and click 'Generate Diagram'";
         double textWidth = 370;
         gc.fillText(message, Math.max(20, (w - textWidth) / 2), h / 2);
     }
 
+    /**
+     * Draws background graph paper grid lines across the canvas.
+     *
+     * @param gc   2D drawing paintbrush
+     * @param w    screen width in pixels
+     * @param h    screen height in pixels
+     * @param step distance between grid lines in pixels
+     */
     private void drawGrid(GraphicsContext gc, double w, double h, double step) {
         gc.setStroke(GRID_COLOR);
         gc.setLineWidth(1.0);
@@ -87,6 +144,14 @@ public class TriangleCanvas extends Pane {
         }
     }
 
+    /**
+     * The core drawing pipeline: computes scale, centers view, draws axes, lines, fill, and corner badges.
+     *
+     * @param gc       2D drawing paintbrush
+     * @param w        screen width in pixels
+     * @param h        screen height in pixels
+     * @param triangle the triangle object to render
+     */
     private void drawTriangleScene(GraphicsContext gc, double w, double h, Triangle triangle) {
         Point p1 = triangle.getP1();
         Point p2 = triangle.getP2();
@@ -100,7 +165,7 @@ public class TriangleCanvas extends Pane {
         double spanX = Math.max(maxX - minX, 1.0);
         double spanY = Math.max(maxY - minY, 1.0);
 
-        // Add 35% margin for comfortable view and labels
+        // Add 70% extra margin around triangle so it has breathing room and labels don't get cut off
         double viewSpanX = spanX * 1.7;
         double viewSpanY = spanY * 1.7;
 
@@ -109,18 +174,17 @@ public class TriangleCanvas extends Pane {
 
         double scale = Math.min((w - 80) / viewSpanX, (h - 80) / viewSpanY);
 
-        // Coordinate transformation helpers
         Transform tx = new Transform(w, h, midX, midY, scale);
 
-        // Draw coordinate axes if they fall within the visible region
+        // 1. Draw coordinate axes (X and Y)
         drawAxes(gc, w, h, tx);
 
-        // Draw extended lines for the 3 equations
+        // 2. Draw extended dashed lines for each equation
         drawLine(gc, triangle.getL1(), tx, EXTENDED_LINE_1, w, h);
         drawLine(gc, triangle.getL2(), tx, EXTENDED_LINE_2, w, h);
         drawLine(gc, triangle.getL3(), tx, EXTENDED_LINE_3, w, h);
 
-        // Transform vertices to screen coordinates
+        // 3. Convert math coordinates to screen pixels
         double c1x = tx.toScreenX(p1.getX());
         double c1y = tx.toScreenY(p1.getY());
         double c2x = tx.toScreenX(p2.getX());
@@ -128,18 +192,18 @@ public class TriangleCanvas extends Pane {
         double c3x = tx.toScreenX(p3.getX());
         double c3y = tx.toScreenY(p3.getY());
 
-        // Draw filled triangle
+        // 4. Draw filled triangle polygon
         double[] xPoints = {c1x, c2x, c3x};
         double[] yPoints = {c1y, c2y, c3y};
         gc.setFill(TRIANGLE_FILL);
         gc.fillPolygon(xPoints, yPoints, 3);
 
-        // Draw triangle perimeter
+        // 5. Draw triangle outer perimeter border
         gc.setStroke(TRIANGLE_STROKE);
         gc.setLineWidth(2.5);
         gc.strokePolygon(xPoints, yPoints, 3);
 
-        // Draw vertices and coordinates
+        // 6. Draw glowing corner dots with text labels pointing away from center
         Point centroid = triangle.getCentroid();
         double scCentroidX = tx.toScreenX(centroid.getX());
         double scCentroidY = tx.toScreenY(centroid.getY());
@@ -149,14 +213,22 @@ public class TriangleCanvas extends Pane {
         drawVertex(gc, c3x, c3y, "C " + p3, scCentroidX, scCentroidY);
     }
 
+    /**
+     * Draws the X and Y coordinate lines on the screen if they fit inside the viewing window.
+     *
+     * @param gc 2D drawing paintbrush
+     * @param w  screen width in pixels
+     * @param h  screen height in pixels
+     * @param tx coordinate translator
+     */
     private void drawAxes(GraphicsContext gc, double w, double h, Transform tx) {
-        double screenYAxis = tx.toScreenX(0); // line x = 0
-        double screenXAxis = tx.toScreenY(0); // line y = 0
+        double screenYAxis = tx.toScreenX(0); // vertical line x = 0
+        double screenXAxis = tx.toScreenY(0); // horizontal line y = 0
 
         gc.setStroke(AXIS_COLOR);
         gc.setLineWidth(1.2);
 
-        // Y-axis (vertical)
+        // Vertical Y-axis
         if (screenYAxis >= 0 && screenYAxis <= w) {
             gc.strokeLine(screenYAxis, 0, screenYAxis, h);
             gc.setFill(Color.web("#94A3B8"));
@@ -164,7 +236,7 @@ public class TriangleCanvas extends Pane {
             gc.fillText("Y", screenYAxis + 5, 15);
         }
 
-        // X-axis (horizontal)
+        // Horizontal X-axis
         if (screenXAxis >= 0 && screenXAxis <= h) {
             gc.strokeLine(0, screenXAxis, w, screenXAxis);
             gc.setFill(Color.web("#94A3B8"));
@@ -173,33 +245,41 @@ public class TriangleCanvas extends Pane {
         }
     }
 
+    /**
+     * Draws an infinite dashed line extending completely across the screen.
+     *
+     * @param gc    2D drawing paintbrush
+     * @param line  the line equation to draw
+     * @param tx    coordinate translator
+     * @param color the dashed line color
+     * @param w     screen width in pixels
+     * @param h     screen height in pixels
+     */
     private void drawLine(GraphicsContext gc, Line line, Transform tx, Color color, double w, double h) {
         gc.save();
         gc.setStroke(color);
         gc.setLineWidth(1.5);
         gc.setLineDashes(6.0, 4.0);
 
-        // Find intersection of line Ax + By = C with canvas viewport edges
         double a = line.getA();
         double b = line.getB();
         double c = line.getC();
 
         double mathMinX = tx.toMathX(0);
         double mathMaxX = tx.toMathX(w);
-        double mathMaxY = tx.toMathY(0);
-        double mathMinY = tx.toMathY(h);
 
-        // If almost vertical (b is near 0)
         if (Math.abs(b) < 1e-9) {
+            // Pure vertical line: x = c / a
             double x = c / a;
             double sx = tx.toScreenX(x);
             gc.strokeLine(sx, 0, sx, h);
         } else if (Math.abs(a) < 1e-9) {
+            // Pure horizontal line: y = c / b
             double y = c / b;
             double sy = tx.toScreenY(y);
             gc.strokeLine(0, sy, w, sy);
         } else {
-            // General line: y = (c - a*x) / b
+            // General sloping line: y = (c - a*x) / b
             double y1 = (c - a * mathMinX) / b;
             double y2 = (c - a * mathMaxX) / b;
             gc.strokeLine(tx.toScreenX(mathMinX), tx.toScreenY(y1), tx.toScreenX(mathMaxX), tx.toScreenY(y2));
@@ -207,14 +287,24 @@ public class TriangleCanvas extends Pane {
         gc.restore();
     }
 
+    /**
+     * Draws a glowing corner dot and a text bubble showing the coordinates.
+     *
+     * @param gc    2D drawing paintbrush
+     * @param vx    pixel X of the corner
+     * @param vy    pixel Y of the corner
+     * @param label text to write (e.g. "A (5.00, 3.00)")
+     * @param cx    pixel X of the triangle center
+     * @param cy    pixel Y of the triangle center
+     */
     private void drawVertex(GraphicsContext gc, double vx, double vy, String label, double cx, double cy) {
-        // Outer glow/dot
+        // Draw double dot (white outer glow + cyan center dot)
         gc.setFill(Color.WHITE);
         gc.fillOval(vx - 6, vy - 6, 12, 12);
         gc.setFill(VERTEX_COLOR);
         gc.fillOval(vx - 4, vy - 4, 8, 8);
 
-        // Text label positioning outward from centroid
+        // Push text label slightly outwards from the center of the triangle so it doesn't cover the shape
         double dx = vx - cx;
         double dy = vy - cy;
         double dist = Math.hypot(dx, dy);
@@ -226,7 +316,7 @@ public class TriangleCanvas extends Pane {
         double offsetX = (dx / dist) * 18.0;
         double offsetY = (dy / dist) * 18.0;
 
-        // Label background pill
+        // Draw pill bubble background for text readability
         gc.setFont(Font.font("System", FontWeight.BOLD, 12));
         double textWidth = label.length() * 7.5;
         double rectX = vx + offsetX - 5;
@@ -243,9 +333,30 @@ public class TriangleCanvas extends Pane {
         gc.fillText(label, rectX + 5, rectY + 14);
     }
 
+    /**
+     * Mathematical helper that translates back and forth between graph coordinates and monitor pixels.
+     */
     private static class Transform {
-        final double w, h, midX, midY, scale;
+        /** Canvas width in pixels. */
+        final double w;
+        /** Canvas height in pixels. */
+        final double h;
+        /** Math X coordinate sitting at the visual center. */
+        final double midX;
+        /** Math Y coordinate sitting at the visual center. */
+        final double midY;
+        /** Zoom factor: how many pixels equal 1 graph unit. */
+        final double scale;
 
+        /**
+         * Creates a new coordinate translator.
+         *
+         * @param w     canvas width in pixels
+         * @param h     canvas height in pixels
+         * @param midX  center math X
+         * @param midY  center math Y
+         * @param scale pixel zoom factor
+         */
         Transform(double w, double h, double midX, double midY, double scale) {
             this.w = w;
             this.h = h;
@@ -254,18 +365,42 @@ public class TriangleCanvas extends Pane {
             this.scale = scale;
         }
 
+        /**
+         * Converts math X to pixel X.
+         *
+         * @param mathX mathematical horizontal number
+         * @return pixel horizontal coordinate
+         */
         double toScreenX(double mathX) {
             return (w / 2.0) + (mathX - midX) * scale;
         }
 
+        /**
+         * Converts math Y to pixel Y (flips upside down since screen pixels increase downwards).
+         *
+         * @param mathY mathematical vertical number
+         * @return pixel vertical coordinate
+         */
         double toScreenY(double mathY) {
             return (h / 2.0) - (mathY - midY) * scale;
         }
 
+        /**
+         * Converts pixel X to math X.
+         *
+         * @param screenX pixel horizontal coordinate
+         * @return mathematical horizontal number
+         */
         double toMathX(double screenX) {
             return midX + (screenX - (w / 2.0)) / scale;
         }
 
+        /**
+         * Converts pixel Y to math Y.
+         *
+         * @param screenY pixel vertical coordinate
+         * @return mathematical vertical number
+         */
         double toMathY(double screenY) {
             return midY - (screenY - (h / 2.0)) / scale;
         }
