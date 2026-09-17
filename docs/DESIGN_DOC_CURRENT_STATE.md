@@ -11,7 +11,7 @@ The project has moved beyond docs-only and now includes:
 - Maven build configuration
 - Core geometry/domain modules
 - Console client for `Ax = b` solving
-- JavaFX UI that accepts three equations, computes triangle vertices, validates, and draws the triangle on a dark themed grid canvas
+- JavaFX UI that accepts strict matrix input (`A` and `b`), computes triangle vertices, validates, and draws the triangle on a dark themed grid canvas
 - JUnit test suite for geometry and linear-system logic
 
 ## 3) Technology Stack
@@ -43,35 +43,41 @@ Core math and geometry utilities:
 
 ### `trianglefx.app`
 - `TriangleApp` — JavaFX application with:
-  - 3 equation inputs (`a b c` each)
+  - strict matrix input fields for `A` (`3x2`) and `b` (`3x1`)
   - Draw/Clear controls
   - status label
   - responsive dark-themed canvas with reference grid + origin
 
 ## 5) Input Contract (Current)
 
-The implemented input format is:
+The JavaFX UI now accepts **matrix format only** for the three lines:
 
-- `a b c` meaning `ax + by = c`
+- `A` as a `3x2` coefficient matrix
+- `b` as a `3x1` constants vector
 
-Example triangle-producing set:
+Where each row defines one line:
 
-- `1 1 8`
-- `1 -1 2`
-- `1 0 1`
+- `A[i,1]x + A[i,2]y = b[i]`
+
+Example triangle-producing input:
+
+- Row 1: `A[1,1]=1`, `A[1,2]=1`, `b[1]=8`
+- Row 2: `A[2,1]=1`, `A[2,2]=-1`, `b[2]=2`
+- Row 3: `A[3,1]=1`, `A[3,2]=0`, `b[3]=1`
 
 ## 6) End-to-End Draw Flow
 
 `TriangleApp` draw flow:
 
-1. Parse three input rows into `LineEquation`.
-2. Compute pairwise intersections:
-   - `L1 & L2` -> `P12`
-   - `L2 & L3` -> `P23`
-   - `L3 & L1` -> `P31`
-3. If any pair is parallel/coincident, stop with error message.
-4. Validate triangle with `TriangleValidator.canFormTriangle(P12, P23, P31)`.
-5. If valid, auto-fit and draw triangle on canvas.
+1. Parse matrix entries into `A` (`3x2`) and `b` (`3x1`).
+2. Convert each row into a line equation (`A[i,1]x + A[i,2]y = b[i]`).
+3. Compute pairwise intersections:
+   - `Row 1 & Row 2` -> `P12`
+   - `Row 2 & Row 3` -> `P23`
+   - `Row 3 & Row 1` -> `P31`
+4. If any pair is parallel/coincident, stop with error message.
+5. Validate triangle with `TriangleValidator.canFormTriangle(P12, P23, P31)`.
+6. If valid, auto-fit and draw triangle on canvas.
 
 ## 7) Rendering Design
 
@@ -94,10 +100,10 @@ Current canvas behavior:
 
 Errors are surfaced as friendly status messages in UI:
 
-- Empty input
-- Wrong token count (not exactly 3 values)
-- Non-numeric values
-- Parallel or coincident lines in pairwise intersection
+- Missing required matrix/vector entries (`A[i,j]` or `b[i]`)
+- Non-numeric matrix/vector values
+- Invalid row definitions (e.g., both coefficients zero)
+- Parallel or coincident row-pairs in pairwise intersection
 - Degenerate triangle (collinear/duplicate points)
 
 ## 9) Testing Status
@@ -125,8 +131,8 @@ From repository root:
 
 ## 11) Constraints / Known Gaps
 
-- UI currently accepts only numeric `a b c` format, not free-form algebraic text like `x + y = 8`.
-- There is no dedicated parser module yet for equation strings in symbolic format.
+- UI is intentionally strict matrix-only (`A` and `b`) and does not accept free-form algebraic text like `x + y = 8`.
+- There is no dedicated symbolic equation parser module.
 - The JavaFX app currently draws only the triangle and reference plane (no line drawing layer for the original 3 lines).
 
 ## 12) Suggested Next Steps

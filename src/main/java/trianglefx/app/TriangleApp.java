@@ -21,8 +21,15 @@ import trianglefx.geometry.Point;
 import trianglefx.geometry.TriangleValidator;
 
 /**
- * JavaFX client that accepts three equations in {@code a b c} format ({@code ax + by = c}),
- * computes pairwise intersections, validates triangle existence, and draws it.
+ * JavaFX client that accepts only matrix-form input {@code A*x=b}, computes pairwise intersections,
+ * validates triangle existence, and draws it.
+ *
+ * <p>Input matrix shape is strictly 3x2 for A and 3x1 for b:</p>
+ * <pre>
+ * [a11 a12] [x] = [b1]
+ * [a21 a22] [y]   [b2]
+ * [a31 a32]       [b3]
+ * </pre>
  */
 public final class TriangleApp extends Application {
 
@@ -39,9 +46,18 @@ public final class TriangleApp extends Application {
 	private static final Color TRIANGLE_STROKE = Color.rgb(88, 166, 255);
 	private static final Color VERTEX_COLOR = Color.rgb(248, 81, 73);
 
-	private TextField eq1Field;
-	private TextField eq2Field;
-	private TextField eq3Field;
+	private TextField a11Field;
+	private TextField a12Field;
+	private TextField b1Field;
+
+	private TextField a21Field;
+	private TextField a22Field;
+	private TextField b2Field;
+
+	private TextField a31Field;
+	private TextField a32Field;
+	private TextField b3Field;
+
 	private Label statusLabel;
 	private Canvas canvas;
 
@@ -56,12 +72,20 @@ public final class TriangleApp extends Application {
 	 */
 	@Override
 	public void start(Stage stage) {
-		eq1Field = new TextField("1 1 8");
-		eq2Field = new TextField("1 -1 2");
-		eq3Field = new TextField("1 0 1");
+		a11Field = new TextField("1");
+		a12Field = new TextField("1");
+		b1Field = new TextField("8");
+
+		a21Field = new TextField("1");
+		a22Field = new TextField("-1");
+		b2Field = new TextField("2");
+
+		a31Field = new TextField("1");
+		a32Field = new TextField("0");
+		b3Field = new TextField("1");
 
 		statusLabel = new Label(
-			"Enter 3 equations as: a b c (ax + by = c). Click Draw to render triangle."
+			"Strict matrix input only: provide A (3x2) and b (3x1) for A*x=b, then click Draw."
 		);
 		canvas = new Canvas(1, 1);
 
@@ -71,20 +95,12 @@ public final class TriangleApp extends Application {
 		Button clearButton = new Button("Clear");
 		clearButton.setOnAction(event -> onClear());
 
-		GridPane inputs = new GridPane();
-		inputs.setHgap(10);
-		inputs.setVgap(8);
-		inputs.addRow(0, new Label("Equation 1 (a b c):"), eq1Field);
-		inputs.addRow(1, new Label("Equation 2 (a b c):"), eq2Field);
-		inputs.addRow(2, new Label("Equation 3 (a b c):"), eq3Field);
-
+		GridPane inputs = buildMatrixInputGrid();
 		HBox controls = new HBox(10, drawButton, clearButton);
-
 		VBox top = new VBox(10, inputs, controls, statusLabel);
 		top.setPadding(new Insets(12));
 
 		StackPane canvasPane = new StackPane(canvas);
-
 		canvas.widthProperty().bind(canvasPane.widthProperty());
 		canvas.heightProperty().bind(canvasPane.heightProperty());
 		canvas
@@ -98,7 +114,6 @@ public final class TriangleApp extends Application {
 		root.setTop(top);
 		root.setCenter(canvasPane);
 
-		stage.setTitle("TriangleFX");
 		Scene scene = new Scene(root, 1200, 800);
 		scene
 			.getStylesheets()
@@ -107,6 +122,8 @@ public final class TriangleApp extends Application {
 					.getResource("/trianglefx/app/dark-theme.css")
 					.toExternalForm()
 			);
+
+		stage.setTitle("TriangleFX — Matrix Input Only");
 		stage.setScene(scene);
 		stage.setMaximized(true);
 		stage.show();
@@ -114,30 +131,67 @@ public final class TriangleApp extends Application {
 	}
 
 	/**
-	 * Handles Draw action: parses inputs, computes intersections, validates the triangle,
+	 * Builds the matrix/vector input controls for A*x=b.
+	 *
+	 * @return configured input grid
+	 */
+	private GridPane buildMatrixInputGrid() {
+		GridPane grid = new GridPane();
+		grid.setHgap(10);
+		grid.setVgap(8);
+
+		grid.add(new Label("Row i"), 0, 0);
+		grid.add(new Label("A[i,1]"), 1, 0);
+		grid.add(new Label("A[i,2]"), 2, 0);
+		grid.add(new Label("b[i]"), 3, 0);
+
+		addMatrixRow(grid, 1, "1", a11Field, a12Field, b1Field);
+		addMatrixRow(grid, 2, "2", a21Field, a22Field, b2Field);
+		addMatrixRow(grid, 3, "3", a31Field, a32Field, b3Field);
+
+		return grid;
+	}
+
+	/**
+	 * Adds one matrix row to the input grid.
+	 *
+	 * @param grid target grid
+	 * @param row row index
+	 * @param label line label
+	 * @param aXField field for x coefficient
+	 * @param aYField field for y coefficient
+	 * @param bField field for RHS constant
+	 */
+	private void addMatrixRow(
+		GridPane grid,
+		int row,
+		String label,
+		TextField aXField,
+		TextField aYField,
+		TextField bField
+	) {
+		grid.add(new Label(label), 0, row);
+		grid.add(aXField, 1, row);
+		grid.add(aYField, 2, row);
+		grid.add(bField, 3, row);
+	}
+
+	/**
+	 * Handles Draw action: parses matrix fields, computes intersections, validates the triangle,
 	 * and redraws if valid.
 	 */
 	private void onDraw() {
 		try {
-			LineEquation l1 = parseLine(eq1Field.getText(), "Equation 1");
-			LineEquation l2 = parseLine(eq2Field.getText(), "Equation 2");
-			LineEquation l3 = parseLine(eq3Field.getText(), "Equation 3");
+			double[][] a = parseMatrixA();
+			double[] b = parseVectorB();
 
-			Point p12 = uniqueIntersectionOrThrow(
-				l1,
-				l2,
-				"Equation 1 & Equation 2"
-			);
-			Point p23 = uniqueIntersectionOrThrow(
-				l2,
-				l3,
-				"Equation 2 & Equation 3"
-			);
-			Point p31 = uniqueIntersectionOrThrow(
-				l3,
-				l1,
-				"Equation 3 & Equation 1"
-			);
+			LineEquation l1 = new LineEquation(a[0][0], a[0][1], b[0]);
+			LineEquation l2 = new LineEquation(a[1][0], a[1][1], b[1]);
+			LineEquation l3 = new LineEquation(a[2][0], a[2][1], b[2]);
+
+			Point p12 = uniqueIntersectionOrThrow(l1, l2, "Rows 1 and 2");
+			Point p23 = uniqueIntersectionOrThrow(l2, l3, "Rows 2 and 3");
+			Point p31 = uniqueIntersectionOrThrow(l3, l1, "Rows 3 and 1");
 
 			if (!TriangleValidator.canFormTriangle(p12, p23, p31)) {
 				lastP12 = null;
@@ -176,49 +230,83 @@ public final class TriangleApp extends Application {
 	}
 
 	/**
-	 * Clears user input and removes the currently drawn triangle.
+	 * Clears all matrix inputs and removes the currently drawn triangle.
 	 */
 	private void onClear() {
-		eq1Field.clear();
-		eq2Field.clear();
-		eq3Field.clear();
+		a11Field.clear();
+		a12Field.clear();
+		b1Field.clear();
+
+		a21Field.clear();
+		a22Field.clear();
+		b2Field.clear();
+
+		a31Field.clear();
+		a32Field.clear();
+		b3Field.clear();
+
 		lastP12 = null;
 		lastP23 = null;
 		lastP31 = null;
+
 		clearCanvas();
-		statusLabel.setText("Cleared. Enter equations as: a b c");
+		statusLabel.setText(
+			"Cleared. Strict matrix input only: fill A (3x2) and b (3x1)."
+		);
 	}
 
 	/**
-	 * Parses one equation text in {@code a b c} format into a line equation.
+	 * Parses the coefficient matrix A from input controls.
 	 *
-	 * @param raw raw input text
-	 * @param label field label used in error messages
-	 * @return parsed line equation
-	 * @throws IllegalArgumentException if the input is empty, badly formatted, or non-numeric
+	 * @return a 3x2 matrix A
 	 */
-	private LineEquation parseLine(String raw, String label) {
-		if (raw == null || raw.trim().isEmpty()) {
-			throw new IllegalArgumentException(
-				label + " is empty. Expected: a b c"
-			);
-		}
+	private double[][] parseMatrixA() {
+		return new double[][] {
+			{
+				parseRequiredDouble(a11Field.getText(), "A[1,1]"),
+				parseRequiredDouble(a12Field.getText(), "A[1,2]"),
+			},
+			{
+				parseRequiredDouble(a21Field.getText(), "A[2,1]"),
+				parseRequiredDouble(a22Field.getText(), "A[2,2]"),
+			},
+			{
+				parseRequiredDouble(a31Field.getText(), "A[3,1]"),
+				parseRequiredDouble(a32Field.getText(), "A[3,2]"),
+			},
+		};
+	}
 
-		String[] parts = raw.trim().split("\\s+");
-		if (parts.length != 3) {
-			throw new IllegalArgumentException(
-				label + " must contain exactly 3 numbers: a b c"
-			);
+	/**
+	 * Parses the constants vector b from input controls.
+	 *
+	 * @return a length-3 vector b
+	 */
+	private double[] parseVectorB() {
+		return new double[] {
+			parseRequiredDouble(b1Field.getText(), "b[1]"),
+			parseRequiredDouble(b2Field.getText(), "b[2]"),
+			parseRequiredDouble(b3Field.getText(), "b[3]"),
+		};
+	}
+
+	/**
+	 * Parses a required numeric value.
+	 *
+	 * @param raw text value
+	 * @param fieldName field display name for error messages
+	 * @return parsed double value
+	 */
+	private double parseRequiredDouble(String raw, String fieldName) {
+		if (raw == null || raw.trim().isEmpty()) {
+			throw new IllegalArgumentException(fieldName + " is required.");
 		}
 
 		try {
-			double a = Double.parseDouble(parts[0]);
-			double b = Double.parseDouble(parts[1]);
-			double c = Double.parseDouble(parts[2]);
-			return new LineEquation(a, b, c);
+			return Double.parseDouble(raw.trim());
 		} catch (NumberFormatException ex) {
 			throw new IllegalArgumentException(
-				label + " contains invalid number(s).",
+				fieldName + " must be a valid number.",
 				ex
 			);
 		}
