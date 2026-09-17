@@ -8,17 +8,14 @@ import java.util.regex.Pattern;
 
 /**
  * An automatic algebra sentence reader that translates text equations into a straight {@link Line}.
- * <p>
+ *
  * Humans write linear equations in many different styles. This parser understands formats such as:
- * </p>
- * <ul>
- *   <li><b>Standard form:</b> {@code "x + y = 8"}, {@code "2x - 3y = 10"}</li>
- *   <li><b>Slope-intercept form:</b> {@code "y = 2x + 1"}, {@code "y = -x + 5"}</li>
- *   <li><b>Single variable lines:</b> {@code "x = 4"} (vertical line), {@code "y = -3"} (horizontal line)</li>
- *   <li><b>Decimals and negatives:</b> {@code "-0.5x + 3.5y = -7.25"}</li>
- *   <li><b>Explicit multiplication stars:</b> {@code "2*x + 3*y = 12"}</li>
- *   <li><b>Terms scattered on both sides:</b> {@code "2x + 3 = y + 5"} (automatically rearranges to {@code 2x - y = 2})</li>
- * </ul>
+ * - Standard form: {@code "x + y = 8"}, {@code "2x - 3y = 10"}
+ * - Slope-intercept form: {@code "y = 2x + 1"}, {@code "y = -x + 5"}
+ * - Single variable lines: {@code "x = 4"} (vertical line), {@code "y = -3"} (horizontal line)
+ * - Decimals and negatives: {@code "-0.5x + 3.5y = -7.25"}
+ * - Explicit multiplication stars: {@code "2*x + 3*y = 12"}
+ * - Terms scattered on both sides: {@code "2x + 3 = y + 5"} (automatically rearranges to {@code 2x - y = 2})
  */
 public class EquationParser {
 

@@ -12,21 +12,18 @@ import javafx.scene.text.FontWeight;
 
 /**
  * The digital artist and canvas display of the application.
- * <p>
- * <b>How this canvas works (0 to 100 Guide):</b>
- * </p>
- * <ol>
- *   <li><b>Coordinate Mapping:</b> In math on graph paper, {@code (0, 0)} is in the center and {@code y} goes UP.
- *       On a computer screen, pixel {@code (0, 0)} is at the top-left corner and pixel {@code y} goes DOWN.
- *       This class automatically converts mathematical coordinates into pixel coordinates on your monitor.</li>
- *   <li><b>Auto-Centering &amp; Zooming:</b> It calculates the size of the triangle and automatically scales
- *       it up or down with comfortable margins so it fits perfectly on your screen without distortion.</li>
- *   <li><b>Background Grid &amp; Axes:</b> Draws a subtle slate coordinate grid and labels the X and Y axes.</li>
- *   <li><b>Extended Dashed Lines:</b> Draws the 3 infinite boundary lines in distinct colors (Rose, Emerald, Amber)
- *       so you can clearly see where the lines come from and how they cross.</li>
- *   <li><b>Triangle Shape:</b> Fills the interior with a glowing semi-transparent Indigo polygon and outlines the edges.</li>
- *   <li><b>Corner Badges:</b> Marks the corners (A, B, C) with glowing cyan dots and labels showing exact coordinates.</li>
- * </ol>
+ *
+ * HOW THIS CANVAS WORKS (0 to 100 Guide):
+ * - Coordinate Mapping: In math on graph paper, (0, 0) is in the center and y goes UP.
+ *   On a computer screen, pixel (0, 0) is at the top-left corner and pixel y goes DOWN.
+ *   This class automatically converts mathematical coordinates into pixel coordinates on your monitor.
+ * - Auto-Centering and Zooming: It calculates the size of the triangle and automatically scales
+ *   it up or down with comfortable margins so it fits perfectly on your screen without distortion.
+ * - Background Grid and Axes: Draws a subtle slate coordinate grid and labels the X and Y axes.
+ * - Extended Dashed Lines: Draws the 3 infinite boundary lines in distinct colors (Rose, Emerald, Amber)
+ *   so you can clearly see where the lines come from and how they cross.
+ * - Triangle Shape: Fills the interior with a glowing semi-transparent Indigo polygon and outlines the edges.
+ * - Corner Badges: Marks the corners (A, B, C) with glowing cyan dots and labels showing exact coordinates.
  */
 public class TriangleCanvas extends Pane {
 

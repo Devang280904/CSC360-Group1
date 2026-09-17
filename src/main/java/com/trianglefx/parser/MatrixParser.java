@@ -8,18 +8,14 @@ import java.util.regex.Pattern;
 /**
  * An automatic text reader that extracts numbers from typed or pasted text and organizes them
  * into the fixed matrix equation:
- * <pre>
+ *
  *   [ A (3x2) ] · [ x (2x1) ] = [ B (3x1) ]
- * </pre>
- * <p>
- * <b>Strict Dimensions Enforced (0 to 100 Guide):</b>
- * </p>
- * <ul>
- *   <li><b>Matrix A must be 3 rows by 2 columns (6 numbers total):</b> Each row contains the multiplier for {@code x} and {@code y}.</li>
- *   <li><b>Vector x is fixed at 2 rows by 1 column:</b> Represents the coordinates {@code [x; y]}.</li>
- *   <li><b>Vector B must be 3 rows by 1 column (3 numbers total):</b> Represents the 3 target constants on the right side of the equals sign.</li>
- *   <li><b>Total numbers required:</b> Exactly 9 numbers ($6 + 3 = 9$). If someone enters 8 or 10 numbers, this reader will stop and ask for the exact 9 needed.</li>
- * </ul>
+ *
+ * STRICT DIMENSIONS ENFORCED (0 to 100 Guide):
+ * - Matrix A must be 3 rows by 2 columns (6 numbers total): Each row contains the multiplier for {@code x} and {@code y}.
+ * - Vector x is fixed at 2 rows by 1 column: Represents the coordinates {@code [x; y]}.
+ * - Vector B must be 3 rows by 1 column (3 numbers total): Represents the 3 target constants on the right side of the equals sign.
+ * - Total numbers required: Exactly 9 numbers (6 + 3 = 9). If someone enters 8 or 10 numbers, this reader will stop and ask for the exact 9 needed.
  */
 public class MatrixParser {
 
@@ -36,7 +32,7 @@ public class MatrixParser {
     }
 
     /**
-     * A tidy container box holding the extracted 3&times;2 matrix A and 3&times;1 vector B.
+     * A tidy container box holding the extracted 3x2 matrix A and 3x1 vector B.
      */
     public static class ParsedMatrix {
         /** The 3-row by 2-column grid of line multipliers. */
@@ -56,7 +52,7 @@ public class MatrixParser {
         }
 
         /**
-         * Gets the 3&times;2 matrix of multipliers.
+         * Gets the 3x2 matrix of multipliers.
          *
          * @return 2D array of size 3x2
          */
@@ -65,7 +61,7 @@ public class MatrixParser {
         }
 
         /**
-         * Gets the 3&times;1 column of constants.
+         * Gets the 3x1 column of constants.
          *
          * @return 1D array of length 3
          */
@@ -76,24 +72,16 @@ public class MatrixParser {
 
     /**
      * Reads a chunk of text, extracts the numbers, and organizes them into matrix A and vector B.
-     * <p>
+     *
      * Supports multiple common text formats:
-     * </p>
-     * <ul>
-     *   <li><b>Row-by-row numbers:</b>
-     *       <pre>
-     *         1, 1, 8
-     *         1, -1, 2
-     *         1, 0, 1
-     *       </pre>
-     *   </li>
-     *   <li><b>Brackets format:</b>
-     *       <pre>[[1, 1], [1, -1], [1, 0]], [8, 2, 1]</pre>
-     *   </li>
-     *   <li><b>Augmented bar format:</b>
-     *       <pre>[1 1 | 8; 1 -1 | 2; 1 0 | 1]</pre>
-     *   </li>
-     * </ul>
+     * - Row-by-row numbers:
+     *     1, 1, 8
+     *     1, -1, 2
+     *     1, 0, 1
+     * - Brackets format:
+     *     [[1, 1], [1, -1], [1, 0]], [8, 2, 1]
+     * - Augmented bar format:
+     *     [1 1 | 8; 1 -1 | 2; 1 0 | 1]
      *
      * @param input the text typed or pasted by the user
      * @return a {@link ParsedMatrix} holding the validated 3x2 A and 3x1 B

@@ -4,24 +4,18 @@ import java.util.Optional;
 
 /**
  * Represents an infinitely long, straight 2D line on graph paper.
- * <p>
+ *
  * In mathematics, every straight line on flat 2D paper can be written in the standard equation:
- * </p>
- * <pre>
+ *
  *   A*x + B*y = C
- * </pre>
- * <p>
+ *
  * Here is what each part means in plain English:
- * </p>
- * <ul>
- *   <li><b>{@code A}:</b> How much horizontal tilt or slope the line has along the x-axis.</li>
- *   <li><b>{@code B}:</b> How much vertical tilt or slope the line has along the y-axis.</li>
- *   <li><b>{@code C}:</b> The constant target number that positions the line on the graph paper.</li>
- * </ul>
- * <p>
- * <b>Important rule:</b> {@code A} and {@code B} cannot both be zero at the same time,
+ * - {@code A}: How much horizontal tilt or slope the line has along the x-axis.
+ * - {@code B}: How much vertical tilt or slope the line has along the y-axis.
+ * - {@code C}: The constant target number that positions the line on the graph paper.
+ *
+ * IMPORTANT RULE: {@code A} and {@code B} cannot both be zero at the same time,
  * because {@code 0*x + 0*y = C} has no direction and does not describe a line.
- * </p>
  */
 public class Line {
 
@@ -111,11 +105,10 @@ public class Line {
 
     /**
      * Finds the exact cross point (intersection dot) where this line meets another line.
-     * <p>
+     *
      * Solves the two simultaneous equations using Cramer's rule (calculating the 2x2 determinant).
      * If the lines run parallel (never touch) or are identical (touch everywhere), there is no
      * single unique intersection, so this returns an empty result.
-     * </p>
      *
      * @param other the second line you want to cross with this one
      * @return an {@link Optional} holding the meeting {@link Point} if they cross, or empty if parallel
@@ -137,10 +130,9 @@ public class Line {
 
     /**
      * Tests if this line runs completely parallel to another line (like railroad tracks).
-     * <p>
+     *
      * Two lines are parallel if they slope at the exact same angle. Parallel lines never
      * cross each other at any point on the graph.
-     * </p>
      *
      * @param other the line to check against
      * @return {@code true} if both lines slope in the exact same direction; {@code false} if they will eventually cross
@@ -152,10 +144,9 @@ public class Line {
 
     /**
      * Tests if this line is identical (coincident) to another line.
-     * <p>
+     *
      * For example, {@code x + y = 5} and {@code 2x + 2y = 10} look different, but every point
      * on one line is also on the other. They are the exact same physical line drawn twice.
-     * </p>
      *
      * @param other the line to compare with
      * @return {@code true} if both equations describe the exact same line; {@code false} otherwise

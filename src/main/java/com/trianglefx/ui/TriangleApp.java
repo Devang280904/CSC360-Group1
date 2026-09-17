@@ -28,30 +28,24 @@ import javafx.stage.Stage;
 
 /**
  * The main interactive control room and user interface window for TriangleFX.
- * <p>
- * <b>Beginner's Guide (0 to 100):</b>
- * </p>
- * <p>
+ *
+ * BEGINNER'S GUIDE (0 to 100):
+ *
  * This application is designed so anyone can draw and analyze triangles using a pure
- * <b>Matrix Equation</b> system:
- * </p>
- * <pre>
+ * Matrix Equation system:
+ *
  *   [ A (3x2) ] · [ x (2x1) ] = [ B (3x1) ]
- * </pre>
- * <p>
- * <b>What you see on the screen:</b>
- * </p>
- * <ul>
- *   <li><b>Matrix A (3 rows &times; 2 columns):</b> Six input boxes inside square brackets.
- *       Each row represents one straight line. The two columns are the multipliers for {@code x} and {@code y}.</li>
- *   <li><b>Vector x (2 rows &times; 1 column):</b> The visible column vector {@code [x; y]} showing the two unknown coordinates.</li>
- *   <li><b>Vector B (3 rows &times; 1 column):</b> Three input boxes inside square brackets representing the target numbers.</li>
- *   <li><b>"Generate Diagram" Button:</b> When clicked, the computer reads the numbers, decodes the 3 lines,
- *       finds where they cross, checks that a real triangle exists, and draws the diagram on the right-hand canvas.</li>
- *   <li><b>"Understood Line Equations" Panel:</b> Shows you the standard algebra equations the computer extracted from your matrix.</li>
- *   <li><b>"Geometric Properties" Card:</b> Displays the exact corner coordinates (A, B, C), side lengths, area,
- *       perimeter, and the augmented matrix {@code [A | B]}.</li>
- * </ul>
+ *
+ * WHAT YOU SEE ON THE SCREEN:
+ * - Matrix A (3 rows x 2 columns): Six input boxes inside square brackets.
+ *   Each row represents one straight line. The two columns are the multipliers for x and y.
+ * - Vector x (2 rows x 1 column): The visible column vector [x; y] showing the two unknown coordinates.
+ * - Vector B (3 rows x 1 column): Three input boxes inside square brackets representing the target numbers.
+ * - "Generate Diagram" Button: When clicked, the computer reads the numbers, decodes the 3 lines,
+ *   finds where they cross, checks that a real triangle exists, and draws the diagram on the right-hand canvas.
+ * - "Understood Line Equations" Panel: Shows you the standard algebra equations the computer extracted from your matrix.
+ * - "Geometric Properties" Card: Displays the exact corner coordinates (A, B, C), side lengths, area,
+ *   perimeter, and the augmented matrix [A | B].
  */
 public class TriangleApp extends Application {
 
@@ -245,9 +239,8 @@ public class TriangleApp extends Application {
 
     /**
      * Builds the matrix equation card with real square brackets:
-     * <pre>
+     *
      *   [ A (3x2) ] · [ x (2x1) ] = [ B (3x1) ]
-     * </pre>
      *
      * @return the matrix equation UI card {@link VBox}
      */

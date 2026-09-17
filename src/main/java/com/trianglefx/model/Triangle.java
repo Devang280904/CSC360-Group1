@@ -2,17 +2,13 @@ package com.trianglefx.model;
 
 /**
  * Represents a complete 3-sided closed shape (a triangle) on 2D graph paper.
- * <p>
+ *
  * A triangle is defined by:
- * </p>
- * <ul>
- *   <li><b>3 Corner points (Vertices):</b> {@code p1}, {@code p2}, and {@code p3} where the lines cross.</li>
- *   <li><b>3 Bounding lines:</b> {@code l1}, {@code l2}, and {@code l3} that form the edges.</li>
- * </ul>
- * <p>
+ * - 3 Corner points (Vertices): {@code p1}, {@code p2}, and {@code p3} where the lines cross.
+ * - 3 Bounding lines: {@code l1}, {@code l2}, and {@code l3} that form the edges.
+ *
  * This class calculates all key geometric properties of the triangle:
  * side lengths, perimeter, enclosed area, and center of balance (centroid).
- * </p>
  */
 public class Triangle {
 
@@ -141,9 +137,8 @@ public class Triangle {
 
     /**
      * Calculates the perimeter (the total distance if you walk all the way around the outside of the triangle).
-     * <p>
+     *
      * Formula: {@code perimeter = sideA + sideB + sideC}.
-     * </p>
      *
      * @return the total perimeter length
      */
@@ -153,10 +148,9 @@ public class Triangle {
 
     /**
      * Calculates the 2D surface area (the amount of flat space enclosed inside the triangle).
-     * <p>
+     *
      * Uses Gauss's Shoelace formula:
      * {@code 0.5 * |x1*(y2 - y3) + x2*(y3 - y1) + x3*(y1 - y2)|}.
-     * </p>
      *
      * @return the surface area in square grid units
      */
@@ -170,12 +164,11 @@ public class Triangle {
 
     /**
      * Computes the centroid (the physical center of gravity / balancing point of the triangle).
-     * <p>
+     *
      * If this triangle were cut out of solid cardboard, you could balance it perfectly on the tip
      * of a pencil placed exactly at the centroid!
      * Calculated by taking the average of the 3 corners:
      * {@code x = (x1 + x2 + x3) / 3}, {@code y = (y1 + y2 + y3) / 3}.
-     * </p>
      *
      * @return the centroid balancing {@link Point}
      */

@@ -9,14 +9,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Automated safety checks and tests for the {@link GeometryService}.
- * <p>
+ *
  * These tests ensure that the mathematical formulas work reliably:
- * </p>
- * <ul>
- *   <li>Verifies correct corner finding (intersections) and area calculation.</li>
- *   <li>Verifies the 3&times;2 matrix $A$ and 3&times;1 vector $B$ system.</li>
- *   <li>Verifies that parallel lines, identical lines, and concurrent lines are correctly detected and rejected with safety alarms.</li>
- * </ul>
+ * - Verifies correct corner finding (intersections) and area calculation.
+ * - Verifies the 3x2 matrix A and 3x1 vector B system.
+ * - Verifies that parallel lines, identical lines, and concurrent lines are correctly detected and rejected with safety alarms.
  */
 public class GeometryServiceTest {
 
@@ -38,9 +35,8 @@ public class GeometryServiceTest {
      * Line 1: {@code x + y = 8}
      * Line 2: {@code x - y = 2}
      * Line 3: {@code x = 1}
-     * <p>
+     *
      * Expected corners: (5, 3), (1, -1), and (1, 7). Expected area = 16.00.
-     * </p>
      *
      * @throws ParseException    if equations cannot be parsed
      * @throws GeometryException if geometry calculations fail
@@ -70,7 +66,7 @@ public class GeometryServiceTest {
     }
 
     /**
-     * Tests entering numbers directly via a 3&times;2 matrix A and 3&times;1 vector b.
+     * Tests entering numbers directly via a 3x2 matrix A and 3x1 vector b.
      *
      * @throws GeometryException if matrix geometry calculations fail
      */

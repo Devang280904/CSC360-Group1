@@ -4,17 +4,13 @@ import java.util.Objects;
 
 /**
  * Represents a single specific dot or pin on a flat 2D sheet of graph paper (Cartesian plane).
- * <p>
+ *
  * Just like finding a location on a city map using street coordinates:
- * </p>
- * <ul>
- *   <li><b>{@code x}</b> tells you how far horizontally to go: right is positive, left is negative.</li>
- *   <li><b>{@code y}</b> tells you how far vertically to go: up is positive, down is negative.</li>
- * </ul>
- * <p>
+ * - {@code x} tells you how far horizontally to go: right is positive, left is negative.
+ * - {@code y} tells you how far vertically to go: up is positive, down is negative.
+ *
  * This object is immutable (unchangeable): once a dot is placed at {@code (x, y)}, its location
  * never shifts.
- * </p>
  */
 public class Point {
 
@@ -59,10 +55,9 @@ public class Point {
 
     /**
      * Measures the straight-line ruler distance between this dot and another dot.
-     * <p>
+     *
      * Uses the famous Pythagorean theorem from basic geometry:
      * {@code distance = sqrt((x2 - x1)^2 + (y2 - y1)^2)}.
-     * </p>
      *
      * @param other the second dot you want to measure the distance to
      * @return the straight-line distance in grid units
@@ -75,11 +70,10 @@ public class Point {
 
     /**
      * Checks if two dots are sitting in practically the exact same place.
-     * <p>
+     *
      * Because computers do math with tiny decimal rounding artifacts (e.g. {@code 0.0000000001}),
      * this checks if both x and y are within a microscopic margin of error ({@code epsilon})
      * rather than demanding absolute machine-level exactness.
-     * </p>
      *
      * @param other   the dot to compare with
      * @param epsilon the maximum allowed microscopic difference (e.g. {@code 0.000001})

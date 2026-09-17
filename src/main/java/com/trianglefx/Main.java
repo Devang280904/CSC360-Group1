@@ -4,11 +4,10 @@ import com.trianglefx.ui.TriangleApp;
 
 /**
  * The main starter class for the TriangleFX application.
- * <p>
+ *
  * Think of this class as the "power button" or "ignition key" of the program.
  * When you run this software, Java starts executing here first, and this class
  * immediately wakes up and launches the graphical window ({@link TriangleApp}).
- * </p>
  */
 public class Main {
 

@@ -10,23 +10,19 @@ import java.util.Optional;
 
 /**
  * The mathematician engine of the application.
- * <p>
- * This service takes your input numbers—either as a <b>3&times;2 matrix $A$ and 3&times;1 vector $B$</b>
+ *
+ * This service takes your input numbers—either as a 3x2 matrix A and 3x1 vector B
  * or as 3 linear equation strings—turns them into physical straight lines, finds where those lines cross
  * to form corners, checks all safety rules, and returns a verified {@link Triangle}.
- * </p>
- * <p>
- * <b>How the math works step-by-step:</b>
- * </p>
- * <ol>
- *   <li><b>Row to Line:</b> Each row in the matrix system represents one straight line:
- *       Row 1 is {@code a11*x + a12*y = b1}, Row 2 is {@code a21*x + a22*y = b2}, and Row 3 is {@code a31*x + a32*y = b3}.</li>
- *   <li><b>Parallel Check:</b> It checks every pair of lines. If two lines run parallel (like train tracks), they will never meet, so no corner can exist.</li>
- *   <li><b>Identical Check:</b> If two lines lie right on top of each other, they are the same line, which cannot form a triangle.</li>
- *   <li><b>Find Corners:</b> It calculates where Line 1 crosses Line 2 (Corner 1), where Line 2 crosses Line 3 (Corner 2), and where Line 3 crosses Line 1 (Corner 3).</li>
- *   <li><b>Concurrency Check:</b> If all three lines cross at the exact same single dot (like bicycle spokes), no triangle is created.</li>
- *   <li><b>Area Check:</b> If the 3 corners are in a straight line, the area is 0 (a flat line). If the area is greater than 0, a real triangle is born!</li>
- * </ol>
+ *
+ * How the math works step-by-step:
+ * - Step 1 (Row to Line): Each row in the matrix system represents one straight line:
+ *   Row 1 is {@code a11*x + a12*y = b1}, Row 2 is {@code a21*x + a22*y = b2}, and Row 3 is {@code a31*x + a32*y = b3}.
+ * - Step 2 (Parallel Check): It checks every pair of lines. If two lines run parallel (like train tracks), they will never meet, so no corner can exist.
+ * - Step 3 (Identical Check): If two lines lie right on top of each other, they are the same line, which cannot form a triangle.
+ * - Step 4 (Find Corners): It calculates where Line 1 crosses Line 2 (Corner 1), where Line 2 crosses Line 3 (Corner 2), and where Line 3 crosses Line 1 (Corner 3).
+ * - Step 5 (Concurrency Check): If all three lines cross at the exact same single dot (like bicycle spokes), no triangle is created.
+ * - Step 6 (Area Check): If the 3 corners are in a straight line, the area is 0 (a flat line). If the area is greater than 0, a real triangle is born!
  */
 public class GeometryService {
 
@@ -67,15 +63,14 @@ public class GeometryService {
 
     /**
      * Builds a verified {@link Triangle} from a matrix system:
-     * <pre>
+     *
      *   [ A (3x2) ] · [ x (2x1) ] = [ B (3x1) ]
-     * </pre>
+     *
      * where:
-     * <pre>
+     *
      *   [ A[0][0]  A[0][1] ] [ x ]   [ b[0] ]
      *   [ A[1][0]  A[1][1] ] [ y ] = [ b[1] ]
      *   [ A[2][0]  A[2][1] ]         [ b[2] ]
-     * </pre>
      *
      * @param A a 3-row by 2-column grid of numbers containing the multipliers for x and y
      * @param b a 3-number column containing the target numbers on the right side of the equals sign
@@ -89,12 +84,11 @@ public class GeometryService {
     }
 
     /**
-     * Takes the numbers in a 3&times;2 matrix A and 3&times;1 vector b and turns each row into a straight {@link Line}.
-     * <p>
-     * Row 1 becomes {@code A[0][0]*x + A[0][1]*y = b[0]}.<br>
-     * Row 2 becomes {@code A[1][0]*x + A[1][1]*y = b[1]}.<br>
+     * Takes the numbers in a 3x2 matrix A and 3x1 vector b and turns each row into a straight {@link Line}.
+     *
+     * Row 1 becomes {@code A[0][0]*x + A[0][1]*y = b[0]}.
+     * Row 2 becomes {@code A[1][0]*x + A[1][1]*y = b[1]}.
      * Row 3 becomes {@code A[2][0]*x + A[2][1]*y = b[2]}.
-     * </p>
      *
      * @param A the 3x2 matrix of multipliers
      * @param b the 3x1 column of target numbers

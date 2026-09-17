@@ -7,12 +7,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Automated tests verifying that {@link MatrixParser} correctly reads matrix inputs
  * and strictly enforces the fixed constraints:
- * <ul>
- *   <li>Matrix A is fixed at 3 rows by 2 columns (6 numbers).</li>
- *   <li>Vector x is fixed at 2 rows by 1 column ([x; y]).</li>
- *   <li>Vector B is fixed at 3 rows by 1 column (3 numbers).</li>
- *   <li>Total required numbers: exactly 9.</li>
- * </ul>
+ * - Matrix A is fixed at 3 rows by 2 columns (6 numbers).
+ * - Vector x is fixed at 2 rows by 1 column ([x; y]).
+ * - Vector B is fixed at 3 rows by 1 column (3 numbers).
+ * - Total required numbers: exactly 9.
  */
 public class MatrixParserTest {
 
