@@ -3,7 +3,13 @@ trianglefx/app/TriangleApp$Transform.class
 trianglefx/client/LinearSystemClient$1.class
 trianglefx/geometry/LinearSystem2x2.class
 trianglefx/app/TriangleApp$ScreenPoint.class
+trianglefx/geometry/LineIntersection$Type.class
+trianglefx/geometry/LineEquation.class
 trianglefx/geometry/LinearSystem2x2$Result.class
 trianglefx/app/TriangleApp$1.class
 trianglefx/client/LinearSystemClient.class
+trianglefx/geometry/LineIntersection$Result.class
 trianglefx/geometry/LinearSystem2x2$Type.class
+trianglefx/geometry/TriangleValidator.class
+trianglefx/geometry/Point.class
+trianglefx/geometry/LineIntersection.class
