@@ -6,7 +6,7 @@
 A · [x; y] = B
 ```
 
-The application accepts coefficient matrices, computes pairwise line intersections, validates triangle non-degeneracy, calculates geometric metrics (area, perimeter, side lengths, vertices), and renders an interactive auto-scaled diagram on a 2D coordinate plane.
+The application accepts the coefficient matrices, computes pairwise line intersections, validates triangle non-degeneracy, calculates geometric metrics (area, perimeter, side lengths, vertices), and renders an interactive auto-scaled diagram on a 2D coordinate plane.
 
 ---
 
