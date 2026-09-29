@@ -1,151 +1,274 @@
-# 📐 TriangleFX — Matrix Triangle Solver & Drawer
+# TriangleFX
 
-A beginner-friendly desktop **JavaFX** application that takes a simple **Matrix Equation** as input:
+TriangleFX is a JavaFX desktop application for constructing and visualizing a triangle from three linear constraints in matrix form.
 
-$$\begin{bmatrix} 
-a_{11} & a_{12} \\ 
-a_{21} & a_{22} \\ 
-a_{31} & a_{32} 
-\end{bmatrix} 
-\cdot 
-\begin{bmatrix} 
-x \\ 
-y 
-\end{bmatrix} 
-= 
-\begin{bmatrix} 
-b_1 \\ 
-b_2 \\ 
-b_3 
-\end{bmatrix}$$
-
-The software automatically decodes the underlying 2D linear equations, finds where the lines cross (the corners/vertices), verifies that a real open triangle is formed, and paints the interactive diagram with full geometric measurements.
+The application accepts a coefficient matrix and right-hand-side vector for a 2D linear model, computes pairwise line intersections, validates geometric feasibility, and renders the resulting triangle on a coordinate canvas.
 
 ---
 
-## 📖 Complete Guide: From 0 to 100
+## Table of Contents
 
-### What is this project in simple words?
-Imagine you have three straight sticks. If you lay them down on a table so they cross each other, the space trapped inside the three crossing sticks forms a **triangle** (a 3-sided shape).
-
-This application allows you to enter the numbers that describe those three straight lines. Instead of typing complicated algebra equations, you enter the numbers directly in a clean **Matrix layout**:
-- **Matrix A ($3 \times 2$):** Contains 6 numbers (the multipliers for $x$ and $y$ for each of the 3 lines).
-- **Vector x ($2 \times 1$):** Shows $\begin{bmatrix} x \\ y \end{bmatrix}$ (the horizontal and vertical positions).
-- **Vector B ($3 \times 1$):** Contains 3 numbers (the target constants on the right side of the equals sign).
-
-Once you click **"Generate Diagram"**, the application:
-1. Translates Row 1 into Line 1: $a_{11}x + a_{12}y = b_1$
-2. Translates Row 2 into Line 2: $a_{21}x + a_{22}y = b_2$
-3. Translates Row 3 into Line 3: $a_{31}x + a_{32}y = b_3$
-4. Solves where the lines meet to find the three corners (Vertices A, B, and C).
-5. Checks all safety rules (ensuring no lines run parallel like railroad tracks and no lines collapse into a flat point).
-6. Draws the coordinate grid, axes, colored boundary lines, glowing corner dots, and shaded triangle!
+- [Overview](#overview)
+- [Mathematical Model](#mathematical-model)
+- [Feature Set](#feature-set)
+- [System Architecture](#system-architecture)
+- [Input Contract](#input-contract)
+- [Execution Flow](#execution-flow)
+- [Build, Test, and Run](#build-test-and-run)
+- [Documentation and API](#documentation-and-api)
+- [Project Layout](#project-layout)
+- [Screenshots](#screenshots)
+- [Current Limitations](#current-limitations)
+- [Roadmap](#roadmap)
 
 ---
 
-## 🔑 Key Concepts Explained
+## Overview
 
-| Concept | Plain English Explanation |
-| :--- | :--- |
-| **Matrix $A$ ($3 \times 2$)** | A grid of 3 rows and 2 columns holding 6 numbers. Each row defines one line. The first column is the weight for horizontal position ($x$), and the second column is the weight for vertical position ($y$). |
-| **Vector $\mathbf{x}$ ($2 \times 1$)** | A column showing the two coordinate variables: $x$ (horizontal) and $y$ (vertical). |
-| **Vector $B$ ($3 \times 1$)** | A column of 3 target numbers, one for each line equation. |
-| **Vertex (Corner)** | The exact crossing point where two straight lines intersect. A triangle has 3 vertices ($A, B, C$). |
-| **Perimeter** | The total walking distance if you walk all the way around the outside border of the triangle ($\text{side}_a + \text{side}_b + \text{side}_c$). |
-| **Area** | The amount of flat surface enclosed inside the triangle, computed using Gauss's Shoelace formula. |
-| **Centroid** | The physical center of gravity. If the triangle were cut out of cardboard, you could balance it on the tip of a pencil placed at the centroid! |
-| **Parallel Lines (Error)** | Two lines that slope in the exact same direction (like railroad tracks). Because they never cross, no corner can form. |
-| **Concurrent Lines (Error)** | Three lines that all pass through the exact same single pinpoint (like spokes on a bicycle wheel). Because they don't enclose any space, the area is 0. |
+TriangleFX solves the following problem:
+
+Given three linear equations in two variables, determine whether the three corresponding lines form a non-degenerate triangle, and if so, draw that triangle.
+
+The implementation is strict about input representation: the UI accepts **matrix-form input only**.
 
 ---
 
-## 🚀 How to Build and Run
+## Mathematical Model
+
+The system is modeled as:
+
+\[
+A\mathbf{x}=\mathbf{b}
+\]
+
+with:
+
+\[
+A =
+\begin{bmatrix}
+a_{11} & a_{12} \\
+a_{21} & a_{22} \\
+a_{31} & a_{32}
+\end{bmatrix}
+\in \mathbb{R}^{3\times 2},
+\quad
+\mathbf{x}=
+\begin{bmatrix}
+x \\
+y
+\end{bmatrix}
+\in \mathbb{R}^{2\times 1},
+\quad
+\mathbf{b}=
+\begin{bmatrix}
+b_1 \\
+b_2 \\
+b_3
+\end{bmatrix}
+\in \mathbb{R}^{3\times 1}
+\]
+
+Each row defines a line in \(\mathbb{R}^2\):
+
+\[
+a_{i1}x + a_{i2}y = b_i,\quad i\in\{1,2,3\}
+\]
+
+The application computes intersections:
+
+\[
+P_{12}=L_1\cap L_2,\quad
+P_{23}=L_2\cap L_3,\quad
+P_{31}=L_3\cap L_1
+\]
+
+A valid triangle exists iff:
+
+1. each pair produces a unique intersection (not parallel, not coincident), and
+2. \(P_{12},P_{23},P_{31}\) are non-collinear and pairwise distinct.
+
+Triangle degeneracy is checked via twice-area determinant:
+
+\[
+2\Delta =
+x_1(y_2-y_3)+x_2(y_3-y_1)+x_3(y_1-y_2)
+\]
+
+A non-degenerate triangle requires:
+
+\[
+|2\Delta| > \varepsilon
+\]
+
+for configured tolerance \(\varepsilon\).
+
+---
+
+## Feature Set
+
+- Strict matrix input UI for \(A\in\mathbb{R}^{3\times 2}\), \(\mathbf{b}\in\mathbb{R}^{3\times 1}\)
+- Pairwise line intersection classification:
+  - intersecting
+  - parallel
+  - coincident
+- Triangle validity verification
+- Auto-fit rendering on a dark coordinate plane
+- Grid, axis lines, origin marker, and labeled vertices
+- Clear separation between geometry logic and UI layer
+- Unit test coverage for geometry and linear-system components
+
+---
+
+## System Architecture
+
+### Geometry Core (`trianglefx.geometry`)
+
+- `Point` — immutable 2D value type
+- `LineEquation` — standard-form line model \(Ax+By=C\)
+- `LineIntersection` — relationship and intersection computation for two lines
+- `LinearSystem2x2` — solver and classification for 2×2 systems
+- `TriangleValidator` — geometric validity checks for three points
+
+### JavaFX Application (`trianglefx.app`)
+
+- `TriangleApp` — matrix-input UI, orchestration, rendering, status/error handling
+
+### Console Client (`trianglefx.client`)
+
+- `LinearSystemClient` — CLI solver for two equations in coefficient form
+
+---
+
+## Input Contract
+
+The UI requires 9 scalar inputs:
+
+- Matrix entries: `A[1,1]`, `A[1,2]`, `A[2,1]`, `A[2,2]`, `A[3,1]`, `A[3,2]`
+- Vector entries: `b[1]`, `b[2]`, `b[3]`
+
+All values must be valid floating-point numbers.
+
+### Example input
+
+- Row 1: `A[1,1]=1`, `A[1,2]=1`, `b[1]=8`
+- Row 2: `A[2,1]=1`, `A[2,2]=-1`, `b[2]=2`
+- Row 3: `A[3,1]=1`, `A[3,2]=0`, `b[3]=1`
+
+Equivalent equations:
+
+\[
+\begin{aligned}
+x+y&=8 \\
+x-y&=2 \\
+x&=1
+\end{aligned}
+\]
+
+---
+
+## Execution Flow
+
+1. Parse UI fields into matrix/vector values.
+2. Build three line equations from rows of \(A\) and \(\mathbf{b}\).
+3. Compute \(P_{12}, P_{23}, P_{31}\) using pairwise line intersection.
+4. Reject invalid line relationships (parallel/coincident).
+5. Validate non-degenerate triangle using area-based test.
+6. Render triangle and labels on the canvas.
+
+---
+
+## Build, Test, and Run
 
 ### Prerequisites
-- **Java JDK 21+** installed
-- **Apache Maven 3.8+** installed
 
-### 1. Launch the Desktop App
-```bash
-mvn clean javafx:run
-```
+- Java 17 or newer
+- Maven 3.8 or newer
 
-### 2. Run All Automated Unit Tests
+### Run test suite
+
 ```bash
 mvn test
 ```
 
-### 3. Generate Complete Javadoc Documentation
+### Launch JavaFX desktop application
+
+```bash
+mvn javafx:run
+```
+
+### Generate Javadoc
+
 ```bash
 mvn javadoc:javadoc
 ```
-The generated HTML documentation will be created in `target/reports/apidocs/index.html`.
 
 ---
 
-## 🎨 User Interface Walkthrough
+## Documentation and API
 
-```
-┌───────────────────────────────────────┬──────────────────────────────────────────┐
-│              SIDEBAR                  │                 CANVAS                   │
-│                                       │                                          │
-│  [ a11  a12 ]   [ x ]     [ b1 ]      │        Y                                 │
-│  [ a21  a22 ] · [ y ]  =  [ b2 ]      │        |        Line 1 (Rose)            │
-│  [ a31  a32 ]             [ b3 ]      │        |   /                             │
-│     (3x2)       (2x1)      (3x1)      │        |  /  Vertex A (5, 3)             │
-│                                       │        | /   *                           │
-│  [ Generate Diagram ]  [ Clear ]      │        |/   / \                          │
-│                                       │  ------+---*---*-----> X                 │
-│  UNDERSTOOD LINE EQUATIONS:           │        |    B   C                        │
-│   L1: 1x + 1y = 8                     │        |   (1,-1)(1,7)                   │
-│   L2: 1x - 1y = 2                     │        |                                 │
-│   L3: 1x = 1                          │        |                                 │
-│                                       │                                          │
-│  GEOMETRIC PROPERTIES:                │                                          │
-│   Vertex A: (5.00, 3.00)              │                                          │
-│   Vertex B: (1.00, -1.00)             │                                          │
-│   Vertex C: (1.00, 7.00)              │                                          │
-│   Area: 16.0000 | Perimeter: 20.4853  │                                          │
-└───────────────────────────────────────┴──────────────────────────────────────────┘
-```
+Additional project documents:
+
+- `docs/PROBLEM_STATEMENT.md`
+- `docs/IMPLEMENTATION_PLAN.md`
+- `docs/DESIGN_DOC_CURRENT_STATE.md`
 
 ---
 
-## 📊 Preset Matrix Examples
+## Project Layout
 
-| Example / Shape | Matrix $A$ ($3 \times 2$) | Vector $B$ ($3 \times 1$) | Decoded Lines | Visual Result |
-| :--- | :--- | :--- | :--- | :--- |
-| **Default Example** | `[[1, 1], [1, -1], [1, 0]]` | `[8, 2, 1]` | $x+y=8$<br>$x-y=2$<br>$x=1$ | Corners at $(5, 3)$, $(1, -1)$, $(1, 7)$. **Area = 16.00**. |
-| **Right Triangle** | `[[0, 1], [1, 0], [1, 1]]` | `[1, 2, 6]` | $y=1$<br>$x=2$<br>$x+y=6$ | $90^\circ$ right triangle at $(2, 1)$, $(2, 4)$, $(5, 1)$. **Area = 4.50**. |
-| **Equilateral-like** | `[[0, 1], [1.732, -1], [1.732, 1]]` | `[0, 0, 6.928]` | $y=0$<br>$1.73x-y=0$<br>$1.73x+y=6.93$ | Corners at $(0, 0)$, $(2, 3.46)$, $(4, 0)$. **Area ≈ 6.93**. |
-| **Oblique Triangle** | `[[2, -1], [1, 2], [3, -4]]` | `[4, 8, -12]` | $2x-y=4$<br>$x+2y=8$<br>$3x-4y=-12$ | Slanted general triangle with all sides non-perpendicular. |
-
----
-
-## 🏗️ Project Architecture
-
-```
+```text
 src/
-├── main/java/com/trianglefx/
-│   ├── Main.java                     # Startup ignition switch
-│   ├── model/
-│   │   ├── Point.java                # Dot on graph paper (x, y)
-│   │   ├── Line.java                 # Straight line (Ax + By = C)
-│   │   └── Triangle.java             # Triangle with corners, sides, area
-│   ├── parser/
-│   │   ├── MatrixParser.java         # Reads raw matrix strings with 3x2 & 3x1 constraints
-│   │   ├── EquationParser.java       # Translates text equations into lines
-│   │   └── ParseException.java       # Syntax & formatting error alarm
-│   ├── geometry/
-│   │   ├── GeometryService.java      # Intersection solver and validation engine
-│   │   └── GeometryException.java    # Geometric error alarm (parallel, concurrent, flat)
-│   └── ui/
-│       ├── TriangleApp.java          # Matrix input UI and control room
-│       └── TriangleCanvas.java       # Responsive canvas artist
-└── test/java/com/trianglefx/
-    ├── parser/
-    │   ├── MatrixParserTest.java     # Tests for matrix dimensions & text parsing
-    │   └── EquationParserTest.java   # Tests for equation syntax parsing
-    └── geometry/
-        └── GeometryServiceTest.java  # Tests for intersections, area, and edge cases
+├── main/
+│   ├── java/
+│   │   └── trianglefx/
+│   │       ├── app/
+│   │       │   └── TriangleApp.java
+│   │       ├── client/
+│   │       │   └── LinearSystemClient.java
+│   │       └── geometry/
+│   │           ├── LineEquation.java
+│   │           ├── LineIntersection.java
+│   │           ├── LinearSystem2x2.java
+│   │           ├── Point.java
+│   │           └── TriangleValidator.java
+│   └── resources/
+│       └── trianglefx/
+│           └── app/
+│               └── dark-theme.css
+└── test/
+    └── java/
+        └── trianglefx/
+            └── geometry/
+                ├── LineEquationTest.java
+                ├── LineIntersectionTest.java
+                ├── LinearSystem2x2Test.java
+                └── TriangleValidatorTest.java
 ```
+
+---
+
+## Screenshots
+
+### Matrix input and rendered triangle
+
+![TriangleFX screenshot 1](src/main/java/com/trianglefx/resources/Screenshot%202026-09-29%20at%2014.46.21.png)
+
+### Alternate application view
+
+![TriangleFX screenshot 2](src/main/java/com/trianglefx/resources/Screenshot%202026-09-29%20at%2014.46.35.png)
+
+---
+
+## Current Limitations
+
+- Input mode is matrix-only; symbolic equation parsing (e.g., `x + y = 8`) is not yet implemented in the UI.
+- The renderer focuses on triangle output and reference plane; original infinite line overlays are not yet drawn.
+
+---
+
+## Roadmap
+
+- Add optional symbolic equation parser with robust normalization.
+- Add overlay rendering for all three source lines.
+- Expand automated UI/integration test coverage.
+- Add export capability for rendered diagrams (image/vector output).
