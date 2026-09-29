@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
@@ -180,7 +181,7 @@ public class TriangleApp extends Application {
 
         // Presets selector
         Label presetHeader = new Label("MATRIX PRESETS");
-        presetHeader.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #6B7280;");
+        presetHeader.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #9CA3AF;");
 
         ComboBox<String> presetCombo = new ComboBox<>();
         presetCombo.setMaxWidth(Double.MAX_VALUE);
@@ -191,7 +192,54 @@ public class TriangleApp extends Application {
                 "Preset 4: A=[[2, -1], [1, 2], [3, -4]], B=[4, 8, -12] (Oblique)"
         );
         presetCombo.setPromptText("Select a matrix preset...");
-        presetCombo.setStyle("-fx-background-color: #1F2937; -fx-mark-color: #9CA3AF;");
+        presetCombo.setStyle("-fx-background-color: #1F2937; -fx-mark-color: #9CA3AF; -fx-border-color: #374151; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-cursor: hand;");
+
+        // Set button cell so the selected preset text is clear and identical to other text (#E5E7EB)
+        presetCombo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(presetCombo.getPromptText());
+                    setStyle("-fx-text-fill: #9CA3AF; -fx-font-size: 12px;");
+                } else {
+                    setText(item);
+                    setStyle("-fx-text-fill: #E5E7EB; -fx-font-size: 12px;");
+                }
+            }
+        });
+
+        // Set cell factory so popup list options also have dark background and readable text
+        presetCombo.setCellFactory(lv -> new ListCell<>() {
+            {
+                hoverProperty().addListener((obs, oldVal, newVal) -> updateStyleState());
+                selectedProperty().addListener((obs, oldVal, newVal) -> updateStyleState());
+            }
+
+            private void updateStyleState() {
+                if (isEmpty() || getItem() == null) {
+                    setStyle("-fx-background-color: #1F2937;");
+                } else if (isSelected()) {
+                    setStyle("-fx-background-color: #4F46E5; -fx-text-fill: #FFFFFF; -fx-font-size: 12px; -fx-padding: 8px;");
+                } else if (isHover()) {
+                    setStyle("-fx-background-color: #374151; -fx-text-fill: #FFFFFF; -fx-font-size: 12px; -fx-padding: 8px; -fx-cursor: hand;");
+                } else {
+                    setStyle("-fx-background-color: #1F2937; -fx-text-fill: #E5E7EB; -fx-font-size: 12px; -fx-padding: 8px;");
+                }
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item);
+                }
+                updateStyleState();
+            }
+        });
+
         presetCombo.setOnAction(e -> {
             int idx = presetCombo.getSelectionModel().getSelectedIndex();
             if (idx == 0) {
