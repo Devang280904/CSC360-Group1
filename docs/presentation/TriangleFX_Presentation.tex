@@ -1,0 +1,377 @@
+% ============================================================================
+% TriangleFX -- CSC360 Group 1 -- Beamer presentation (10 slides)
+% Build:  pdflatex TriangleFX_Presentation.tex   (run twice for the outline)
+% ============================================================================
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit}
+
+% ---------------------------------------------------------------- theme ----
+\usetheme{Madrid}
+\definecolor{tfxbg}{HTML}{0F172A}
+\definecolor{tfxpanel}{HTML}{1E293B}
+\definecolor{tfxblue}{HTML}{2563EB}
+\definecolor{tfxsky}{HTML}{58A6FF}
+\definecolor{tfxred}{HTML}{DC2626}
+\definecolor{tfxgreen}{HTML}{16A34A}
+\definecolor{tfxamber}{HTML}{D97706}
+\setbeamercolor{palette primary}{bg=tfxbg,fg=white}
+\setbeamercolor{palette secondary}{bg=tfxpanel,fg=white}
+\setbeamercolor{palette tertiary}{bg=tfxblue,fg=white}
+\setbeamercolor{title}{fg=white,bg=tfxbg}
+\setbeamercolor{frametitle}{bg=tfxbg,fg=white}
+\setbeamercolor{structure}{fg=tfxblue}
+\setbeamercolor{block title}{bg=tfxblue,fg=white}
+\setbeamercolor{block body}{bg=tfxblue!8,fg=black}
+\setbeamercolor{block title alerted}{bg=tfxred,fg=white}
+\setbeamercolor{block body alerted}{bg=tfxred!8,fg=black}
+\setbeamercolor{block title example}{bg=tfxgreen,fg=white}
+\setbeamercolor{block body example}{bg=tfxgreen!8,fg=black}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize items}[circle]
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{tfxblue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{tfxamber},
+  language=Java,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{tfxblue!40},
+  backgroundcolor=\color{gray!6},
+  morekeywords={record,var}
+}
+
+\title[TriangleFX]{TriangleFX}
+\subtitle{From Three Linear Constraints to a Verified Triangle}
+\author[CSC360 Group 1]{CSC360 -- Group 1}
+\institute[]{Software Design and Implementation in Java\,/\,JavaFX}
+\date{}
+
+\begin{document}
+
+% ---------------------------------------------------------------- 1 -------
+\begin{frame}[plain]
+  \titlepage
+  \vfill
+  \centering
+  {\small\color{tfxsky}Java 17 \;\textbullet\; JavaFX \;\textbullet\; Maven \;\textbullet\; JUnit 5}
+\end{frame}
+
+% ---------------------------------------------------------------- 2 -------
+\begin{frame}{1. Problem Statement}
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      \begin{block}{The problem}
+        Given \textbf{three lines} in the plane, decide whether they bound a
+        real triangle. If they do, compute and \textbf{draw} it.
+      \end{block}
+      \vspace{2pt}
+      Requirements
+      \begin{itemize}
+        \item Accept input as the matrix system $A\mathbf{x}=\mathbf{b}$
+        \item Find the three vertices (pairwise intersections)
+        \item Reject impossible geometry with a \emph{clear reason}
+        \item Show area, perimeter, sides and centroid
+        \item Render on a scaled coordinate plane
+      \end{itemize}
+    \column{0.44\textwidth}
+      \begin{alertblock}{Inputs that must fail gracefully}
+        \begin{itemize}
+          \item Two lines parallel
+          \item Two lines identical
+          \item All three lines through one point
+          \item Vertices collinear (zero area)
+          \item Malformed / missing numbers
+        \end{itemize}
+      \end{alertblock}
+      \begin{exampleblock}{Example}
+        $x+y=8,\; x-y=2,\; x=1$\\[2pt]
+        $\Rightarrow$ vertices $(5,3),(1,-1),(1,7)$, area $16$
+      \end{exampleblock}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 3 -------
+\begin{frame}{2. Thought Process}
+  \begin{center}
+  \begin{tikzpicture}[
+      node distance=5mm and 9mm,
+      pstep/.style={draw=tfxblue,fill=tfxblue!8,rounded corners=3pt,
+                   align=center,minimum width=3.0cm,minimum height=1.05cm,font=\small},
+      arr/.style={-{Stealth[length=2.2mm]},thick,tfxblue}]
+    \node[pstep] (a) {\textbf{Observe}\\ triangle = 3 lines};
+    \node[pstep,right=of a] (b) {\textbf{Model}\\ line: $Ax+By=C$};
+    \node[pstep,right=of b] (c) {\textbf{Generalise}\\ rows of $A\mathbf{x}=\mathbf{b}$};
+    \node[pstep,below=of a] (d) {\textbf{Solve}\\ $2\times2$ per line pair};
+    \node[pstep,right=of d] (e) {\textbf{Verify}\\ distinct, non-flat};
+    \node[pstep,right=of e] (f) {\textbf{Present}\\ scale and draw};
+    \draw[arr] (a)--(b); \draw[arr] (b)--(c);
+    \draw[arr] (c.south) -- ++(0,-2.5mm) -| ($(d.north)+(0,0)$);
+    \draw[arr] (d)--(e); \draw[arr] (e)--(f);
+  \end{tikzpicture}
+  \end{center}
+  \vspace{-2mm}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \textbf{Key decisions}
+      \begin{itemize}
+        \item Matrix input is unambiguous; no free-text algebra needed in the UI
+        \item Keep math \textbf{independent of JavaFX} so it is unit-testable
+        \item Treat invalid geometry as a first-class, explained outcome
+      \end{itemize}
+    \column{0.48\textwidth}
+      \textbf{Alternatives considered}
+      \begin{itemize}
+        \item Parsing typed equations (\texttt{x + y = 8}): kept as an optional
+              \texttt{EquationParser}, not the primary path
+        \item Solving a $3\times2$ system directly: over-determined in general,
+              so we solve \emph{pairs} instead
+      \end{itemize}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 4 -------
+\begin{frame}{3. The Mathematics}
+  \begin{columns}[T]
+    \column{0.50\textwidth}
+      \textbf{Matrix form.} Each row of $A$ is one line:
+      \[
+        \begin{bmatrix} a_{11}&a_{12}\\ a_{21}&a_{22}\\ a_{31}&a_{32}\end{bmatrix}
+        \begin{bmatrix}x\\y\end{bmatrix}=
+        \begin{bmatrix}b_1\\b_2\\b_3\end{bmatrix}
+      \]
+      \textbf{Intersection (Cramer's rule)} for $L_1:A_1x+B_1y=C_1$, $L_2:A_2x+B_2y=C_2$:
+      \[
+        D=A_1B_2-A_2B_1
+      \]
+      \[
+        x=\frac{C_1B_2-C_2B_1}{D},\qquad
+        y=\frac{A_1C_2-A_2C_1}{D}
+      \]
+      $D=0 \Rightarrow$ parallel or identical.
+    \column{0.47\textwidth}
+      \textbf{Vertices.} $P_{12}=L_1\!\cap\!L_2,\;
+      P_{23}=L_2\!\cap\!L_3,\; P_{31}=L_3\!\cap\!L_1$
+
+      \vspace{3pt}
+      \textbf{Area (shoelace formula)}
+      \[
+        \Delta=\tfrac12\bigl|x_1(y_2-y_3)+x_2(y_3-y_1)+x_3(y_1-y_2)\bigr|
+      \]
+      \textbf{Centroid and perimeter}
+      \[
+        G=\Bigl(\tfrac{x_1+x_2+x_3}{3},\,\tfrac{y_1+y_2+y_3}{3}\Bigr)
+      \]
+      \[
+        p=\lVert P_{12}P_{23}\rVert+\lVert P_{23}P_{31}\rVert+\lVert P_{31}P_{12}\rVert
+      \]
+      Valid triangle $\iff \Delta \ge \varepsilon$ ($\varepsilon=10^{-6}$).
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 5 -------
+\begin{frame}{4. The Solution: Layered Architecture}
+  \centering
+  \begin{tikzpicture}[
+      node distance=6mm,
+      layer/.style={draw=tfxblue,fill=tfxblue!8,rounded corners=3pt,align=center,
+                    minimum width=3.1cm,minimum height=1.35cm,font=\footnotesize},
+      arr/.style={-{Stealth[length=2.2mm]},thick,tfxblue}]
+    \node[layer] (ui)    {\textbf{ui}\\ \texttt{TriangleApp}\\ \texttt{TriangleCanvas}};
+    \node[layer,right=of ui]    (svc)   {\textbf{geometry}\\ \texttt{GeometryService}\\ \texttt{GeometryException}};
+    \node[layer,right=of svc]   (model) {\textbf{model}\\ \texttt{Point}\\ \texttt{Line}\;\texttt{Triangle}};
+    \node[layer,below=of svc]   (parse) {\textbf{parser}\\ \texttt{MatrixParser}\\ \texttt{EquationParser}};
+    \draw[arr] (ui)--(svc);
+    \draw[arr] (svc)--(model);
+    \draw[arr] (svc)--(parse);
+    \draw[arr,dashed] (ui.south) |- (parse.west);
+  \end{tikzpicture}
+
+  \vspace{2mm}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \begin{itemize}
+        \item \textbf{Dependencies point inward}: \texttt{model} knows nothing
+              about UI or parsing
+        \item \texttt{Main} only launches \texttt{TriangleApp}
+      \end{itemize}
+    \column{0.48\textwidth}
+      \begin{itemize}
+        \item Pure logic lives in \texttt{geometry}/\texttt{model}: testable
+              without a display
+        \item \texttt{ui} only collects input and draws results
+      \end{itemize}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 6 -------
+\begin{frame}[fragile]{5. Solution Walk-through: Validation Pipeline}
+  \begin{columns}[T]
+    \column{0.40\textwidth}
+      \small
+      \begin{enumerate}
+        \item \textbf{Pair check} (3 pairs): identical or parallel $\to$ error
+        \item \textbf{Intersect} each pair (Cramer)
+        \item \textbf{Concurrency}: two vertices within tolerance $\to$ error
+        \item \textbf{Area}: if $\Delta<10^{-6}\to$ error
+        \item Return the verified \texttt{Triangle}
+      \end{enumerate}
+      \vspace{2pt}
+      Every failure carries a human-readable message naming the
+      offending lines.
+    \column{0.57\textwidth}
+\begin{lstlisting}[basicstyle=\ttfamily\fontsize{6.5}{8}\selectfont,breaklines=false,xleftmargin=2pt,xrightmargin=2pt]
+Triangle buildTriangle(Line l1, Line l2, Line l3)
+    throws GeometryException {
+  // 1. reject identical / parallel pairs
+  checkPair(l1, l2, 1, 2);
+  checkPair(l2, l3, 2, 3);
+  checkPair(l3, l1, 3, 1);
+
+  // 2. the three vertices
+  Point p12 = l1.intersectionWith(l2).orElseThrow(..);
+  Point p23 = l2.intersectionWith(l3).orElseThrow(..);
+  Point p31 = l3.intersectionWith(l1).orElseThrow(..);
+
+  // 3. concurrency: coincident vertices
+  if (p12.equalsWithTolerance(p23, TOL) || ..)
+    throw new GeometryException("concurrent");
+
+  // 4. degenerate (near-zero area)
+  Triangle t = new Triangle(p12, p23, p31, l1, l2, l3);
+  if (t.getArea() < MIN_AREA)
+    throw new GeometryException("collapsed");
+  return t;
+}
+\end{lstlisting}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 7 -------
+\begin{frame}{6. Rendering: World-to-Screen Mapping}
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      The canvas fits the triangle to any window size using a single
+      uniform scale, so shapes are never distorted:
+      \[
+        X_{\text{px}} = \tfrac{w}{2} + (x - x_c)\,s
+      \]
+      \[
+        Y_{\text{px}} = \tfrac{h}{2} - (y - y_c)\,s
+      \]
+      \begin{itemize}
+        \item $(x_c,y_c)$: centre of the bounding box; $s$: pixels per unit
+        \item The minus sign flips $y$ (screen $y$ grows downward)
+        \item Grid, axes, lines, fill, and labelled vertices drawn in order
+      \end{itemize}
+    \column{0.44\textwidth}
+      \begin{center}
+      \begin{tikzpicture}[scale=0.42,>=Stealth]
+        \draw[step=1,gray!40,very thin] (-1,-2) grid (7,8);
+        \draw[->,thick] (-1,0)--(7.4,0) node[right]{\scriptsize $x$};
+        \draw[->,thick] (0,-2)--(0,8.4) node[above]{\scriptsize $y$};
+        \fill[tfxblue,opacity=0.25] (5,3)--(1,-1)--(1,7)--cycle;
+        \draw[tfxblue,thick] (5,3)--(1,-1)--(1,7)--cycle;
+        \foreach \p/\l/\pos in {(5,3)/A/right,(1,-1)/B/below,(1,7)/C/above}
+          \fill[tfxred] \p circle(3pt) node[\pos]{\scriptsize $\l$};
+      \end{tikzpicture}
+
+      {\scriptsize Default example: $A(5,3),\,B(1,-1),\,C(1,7)$}
+      \end{center}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 8 -------
+\begin{frame}{7. Design Patterns and Principles in the Codebase}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabularx}{\textwidth}{@{}p{3.1cm}p{3.6cm}X@{}}
+    \toprule
+    \textbf{Pattern / principle} & \textbf{Where} & \textbf{Why it helps}\\
+    \midrule
+    Facade / service layer & \texttt{GeometryService} & One entry point hides parsing, pairing, intersection and validation\\
+    Immutable value objects & \texttt{Point}, \texttt{Line}, \texttt{Triangle} & \texttt{final} fields: thread-safe, safe to share with the UI\\
+    \texttt{Optional} for ``no result'' & \texttt{Line.intersectionWith} & Callers must handle parallel lines; no \texttt{null}\\
+    Fail-fast + exception translation & \texttt{Line}, \texttt{GeometryService} & \texttt{Line} rejects $A=B=0$; service rewraps as a domain error\\
+    Static utility classes & \texttt{MatrixParser}, \texttt{EquationParser} & Private constructors; stateless, easy to test\\
+    Observer (JavaFX listeners) & \texttt{TriangleCanvas} & Size listeners call \texttt{redraw()} on resize\\
+    Separation of concerns & \texttt{model}, \texttt{geometry}, \texttt{ui} & Logic testable without a display\\
+    \bottomrule
+  \end{tabularx}
+\end{frame}
+
+% ---------------------------------------------------------------- 9 -------
+\begin{frame}[fragile]{8. Engineering Quality}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \begin{block}{Numerical robustness}
+        \begin{itemize}
+          \item Tolerances ($10^{-9}$ for parallelism, $10^{-6}$ for area/points) instead of exact \texttt{==}
+          \item Normalises $-0.0$ in intersection results
+          \item \texttt{Math.hypot} for the ``$A,B$ not both zero'' check
+        \end{itemize}
+      \end{block}
+      \begin{block}{Two error families}
+        \texttt{ParseException} (bad text) vs.\ \texttt{GeometryException}
+        (bad geometry): the UI reports each differently.
+      \end{block}
+    \column{0.48\textwidth}
+      \begin{exampleblock}{Tests (JUnit 5)}
+        \begin{itemize}
+          \item \texttt{GeometryServiceTest}
+          \item \texttt{EquationParserTest}
+          \item \texttt{MatrixParserTest}
+        \end{itemize}
+        Cover valid triangles, parallel/coincident/concurrent/degenerate
+        inputs and parser edge cases.
+      \end{exampleblock}
+      \begin{block}{Documentation and build}
+        Javadoc on the public API, Maven build, dark-theme UI;
+        design docs in \texttt{docs/}.
+      \end{block}
+  \end{columns}
+\end{frame}
+
+% --------------------------------------------------------------- 10 -------
+\begin{frame}{9. Reference Material, Lessons and Next Steps}
+  \small
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+      \textbf{Reference books (\texttt{Books/})}
+      \begin{itemize}
+        \item \emph{Core Java, Vol.~1 \& 2}: classes, immutability, exceptions, regular expressions
+        \item \emph{Introducing JavaFX 8 Programming} (Weaver): scene graph, \texttt{Canvas}, property listeners
+        \item \emph{Graphics with Java} (2007): 2D drawing and coordinate transformations
+        \item \emph{Digital Image Processing} (Burger \& Burge): geometric coordinate mapping
+      \end{itemize}
+    \column{0.44\textwidth}
+      \textbf{Lessons learned}
+      \begin{itemize}
+        \item Fix the input model first
+        \item Floating point needs explicit tolerances
+        \item Domain exceptions give clear UI messages
+      \end{itemize}
+      \textbf{Next steps}
+      \begin{itemize}
+        \item Property-based tests
+        \item Export drawing as PNG/SVG
+        \item Generalise to $n$ lines
+      \end{itemize}
+  \end{columns}
+  \vspace{2mm}
+  \centering
+  {\large\color{tfxblue}\textbf{Thank you --- Questions?}}
+\end{frame}
+
+\end{document}
