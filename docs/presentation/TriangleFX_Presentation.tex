@@ -167,16 +167,11 @@
     \column{0.48\textwidth}
       \begin{block}{3. Triangle Properties}
         \footnotesize
-        \begin{itemize}\setlength{\itemsep}{3pt}\setlength{\parskip}{0pt}
-          \item \textbf{Area (Shoelace):}\\
-                $\Delta = \tfrac{1}{2}\bigl|x_1(y_2-y_3) + x_2(y_3-y_1) + x_3(y_1-y_2)\bigr|$
-          \item \textbf{Centroid (Balance):}\\
-                $G = \bigl(\tfrac{x_1 + x_2 + x_3}{3}, \, \tfrac{y_1 + y_2 + y_3}{3}\bigr)$
-          \item \textbf{Perimeter:}\\
-                $p = a + b + c \quad (d = \sqrt{\Delta x^2 + \Delta y^2})$
-        \end{itemize}
+        \textbf{Area (Shoelace):} $\Delta = \tfrac{1}{2}\bigl|x_1(y_2-y_3) + x_2(y_3-y_1) + x_3(y_1-y_2)\bigr|$\\[4pt]
+        \textbf{Centroid (Balance):} $G = \bigl(\tfrac{x_1 + x_2 + x_3}{3}, \, \tfrac{y_1 + y_2 + y_3}{3}\bigr)$\\[4pt]
+        \textbf{Perimeter:} $p = a + b + c \quad (d = \sqrt{\Delta x^2 + \Delta y^2})$
       \end{block}
-      \vspace{2pt}
+      \vspace{4pt}
       \begin{exampleblock}{4. Geometric Validation}
         \footnotesize
         \textbf{Valid} $\iff D \neq 0$, distinct corners, and $\Delta \ge 10^{-6}$.\\[1pt]
@@ -191,30 +186,37 @@
   \begin{tikzpicture}[
       node distance=6mm,
       layer/.style={draw=tfxblue,fill=tfxblue!8,rounded corners=3pt,align=center,
-                    minimum width=3.1cm,minimum height=1.35cm,font=\footnotesize},
+                    minimum width=3.2cm,minimum height=1.35cm,font=\footnotesize},
       arr/.style={-{Stealth[length=2.2mm]},thick,tfxblue}]
-    \node[layer] (ui)    {\textbf{ui}\\ \texttt{TriangleApp}\\ \texttt{TriangleCanvas}};
-    \node[layer,right=of ui]    (svc)   {\textbf{geometry}\\ \texttt{GeometryService}\\ \texttt{GeometryException}};
-    \node[layer,right=of svc]   (model) {\textbf{model}\\ \texttt{Point}\\ \texttt{Line}, \texttt{Triangle}};
-    \node[layer,below=of svc]   (parse) {\textbf{parser}\\ \texttt{MatrixParser}\\ \texttt{EquationParser}};
+    \node[layer] (ui)    {\textbf{UI (View \& Events)}\\ \texttt{TriangleApp}\\ \texttt{TriangleCanvas}};
+    \node[layer,right=of ui]    (svc)   {\textbf{Geometry (Engine)}\\ \texttt{GeometryService}\\ \texttt{GeometryException}};
+    \node[layer,right=of svc]   (model) {\textbf{Model (Entities)}\\ \texttt{Point}, \texttt{Line}\\ \texttt{Triangle}};
+    \node[layer,below=of svc]   (parse) {\textbf{Parser (Input)}\\ \texttt{MatrixParser}\\ \texttt{EquationParser}};
     \draw[arr] (ui)--(svc);
     \draw[arr] (svc)--(model);
     \draw[arr] (svc)--(parse);
     \draw[arr,dashed] (ui.south) |- (parse.west);
   \end{tikzpicture}
 
-  \vspace{2mm}
+  \vspace{1mm}
   \begin{columns}[T]
     \column{0.48\textwidth}
-      \begin{itemize}
-        \item \textbf{Inward Dependencies}: \texttt{model} is pure domain logic, independent of UI or parsing
-        \item \textbf{Separation of Concerns}: \texttt{ui} handles view/events; \texttt{parser} validates inputs
-      \end{itemize}
+      \begin{block}{Architecture Principles}
+        \footnotesize
+        \begin{itemize}\setlength{\itemsep}{2pt}\setlength{\parskip}{0pt}
+          \item \textbf{Decoupled Core:} Math in \texttt{model}/\texttt{geometry} has zero JavaFX UI dependencies.
+          \item \textbf{Separation of Concerns:} UI renders; Parser sanitizes; Geometry validates.
+        \end{itemize}
+      \end{block}
+
     \column{0.48\textwidth}
-      \begin{itemize}
-        \item \textbf{Headless Testing}: \texttt{geometry}/\texttt{model} are 100\% unit-tested without a display
-        \item \textbf{Robust Exceptions}: \texttt{GeometryException} surfaces clear failure reasons to the UI
-      \end{itemize}
+      \begin{block}{Key Engineering Benefits}
+        \footnotesize
+        \begin{itemize}\setlength{\itemsep}{2pt}\setlength{\parskip}{0pt}
+          \item \textbf{Headless Testing:} All math is 100\% testable with JUnit without a display.
+          \item \textbf{Clear Failure Feedback:} Custom exceptions explain invalid geometry in the UI.
+        \end{itemize}
+      \end{block}
   \end{columns}
 \end{frame}
 
