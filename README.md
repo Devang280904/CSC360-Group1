@@ -172,7 +172,7 @@ TriangleFX enforces strict separation of concerns across dedicated modules:
 | `com.trianglefx.model` | `Point`, `Line`, `Triangle` | Immutable domain models representing 2D geometric entities. |
 | `com.trianglefx.geometry` | `GeometryService`, `GeometryException` | Core mathematical engine for line intersection, determinant solving, and validity checks. |
 | `com.trianglefx.parser` | `EquationParser`, `MatrixParser`, `ParseException` | Parses raw matrix strings, equations, and number grids into structured data. |
-| `com.trianglefx.ui` | `TriangleApp`, `TriangleCanvas` | JavaFX interface, matrix inputs, status notifications, and high-DPI canvas renderer. |
+| `com.trianglefx.ui` | `TriangleApp`, `TriangleCanvas` | JavaFX interface, matrix inputs, status notifications, and an auto-scaling, resizable canvas renderer. |
 | `com.trianglefx` | `Main` | Application entry point. |
 
 ---
