@@ -53,92 +53,196 @@
 }
 
 \title[TriangleFX]{TriangleFX}
-\subtitle{From Three Linear Constraints to a Verified Triangle}
-\author[CSC360 Group 1]{CSC360 -- Group 1}
-\institute[]{Software Design and Implementation in Java\,/\,JavaFX}
+\subtitle{From Three Equations to a Valid Triangle}
+
+\author[CSC360 Group 1]{}
+\institute[]{}
 \date{}
 
 \begin{document}
 
 % ---------------------------------------------------------------- 1 -------
 \begin{frame}[plain]
-  \titlepage
-  \vfill
-  \centering
-  {\small\color{tfxsky}Java 17 \;\textbullet\; JavaFX \;\textbullet\; Maven \;\textbullet\; JUnit 5}
+
+    % ---------- Title ----------
+    \begin{beamercolorbox}[
+        wd=\paperwidth,
+        sep=10pt,
+        center
+    ]{title}
+        {\usebeamerfont{title}\inserttitle\par}
+        \vspace{4pt}
+        {\usebeamerfont{subtitle}\insertsubtitle\par}
+    \end{beamercolorbox}
+
+    \vspace{0.45cm}
+
+    % ---------- Objective ----------
+    \begin{block}{Objective}
+        \small
+        Create a JavaFX application that takes three equations, finds where the lines meet, checks if they form a valid triangle, and displays the triangle on the screen.
+    \end{block}
+
+    \vfill
+
+    % ---------- Bottom section ----------
+    \begin{columns}[T]
+
+        % ----- Left: Team -----
+        \begin{column}{0.48\textwidth}
+            \textbf{Group 1}
+
+            \vspace{0.15cm}
+
+            \begin{tabular}{ll}
+                Devang Parmar  & AU2340217 \\
+                Dhairya Rupani & AU2340195 \\
+                Vidhan Nahar   & AU2340199 \\
+                Drumil Bhati   & AU2340211
+            \end{tabular}
+        \end{column}
+
+        % ----- Right: Course -----
+        \begin{column}{0.48\textwidth}
+            \raggedleft
+            \textbf{Mentor}\\
+            Professor Susanta Tewari
+
+            \vspace{0.25cm}
+
+            \textbf{Course}\\
+            CSC360 Computer Graphics and Digital Image Processing
+        \end{column}
+
+    \end{columns}
+
 \end{frame}
 
 % ---------------------------------------------------------------- 2 -------
 \begin{frame}{1. Problem Statement}
+
   \begin{columns}[T]
+
+    % ------------------------------------------------
+    % LEFT COLUMN
+    % ------------------------------------------------
     \column{0.52\textwidth}
-      \begin{block}{The problem}
-        Given \textbf{three lines} in the plane, decide whether they bound a
-        real triangle. If they do, compute and \textbf{draw} it.
+
+      \begin{block}{The Problem}
+        We are given \textbf{three equations} representing three lines.
+        Our goal is to find where the lines meet and determine whether
+        they form a valid triangle.
       \end{block}
-      \vspace{2pt}
-      Requirements
-      \begin{itemize}
-        \item Accept input as the matrix system $A\mathbf{x}=\mathbf{b}$
-        \item Find the three vertices (pairwise intersections)
-        \item Reject impossible geometry with a \emph{clear reason}
-        \item Show area, perimeter, sides and centroid
-        \item Render on a scaled coordinate plane
-      \end{itemize}
+
+      \vspace{4pt}
+
+      \textbf{What the system does:}
+
+\begin{itemize}
+    \item Takes three equations as input
+    \item Finds the three intersection points
+    \item Checks if the intersection points form a triangle
+    \item Calculates area, perimeter, sides and centroid
+    \item Draws the triangle on a coordinate plane
+\end{itemize}
+
+    % ------------------------------------------------
+    % RIGHT COLUMN
+    % ------------------------------------------------
     \column{0.44\textwidth}
-      \begin{alertblock}{Inputs that must fail gracefully}
+
+      \begin{alertblock}{When is it Invalid?}
         \begin{itemize}
-          \item Two lines parallel
-          \item Two lines identical
-          \item All three lines through one point
-          \item Vertices collinear (zero area)
-          \item Malformed / missing numbers
+          \item Two lines are parallel
+          \item Two lines are the same
+          \item All three lines meet at one point
+          \item The three intersection points lie on one line
+          \item Input is missing or invalid
         \end{itemize}
       \end{alertblock}
-      \begin{exampleblock}{Example}
-        $x+y=8,\; x-y=2,\; x=1$\\[2pt]
-        $\Rightarrow$ vertices $(5,3),(1,-1),(1,7)$, area $16$
-      \end{exampleblock}
+
+      \begin{exampleblock}{Example} $x+y=8,\; x-y=2,\; x=1$\\[2pt] $\Rightarrow$ vertices $(5,3),(1,-1),(1,7)$ \end{exampleblock}
+
   \end{columns}
+
 \end{frame}
 
 % ---------------------------------------------------------------- 3 -------
 \begin{frame}{2. Thought Process}
+
   \begin{center}
   \begin{tikzpicture}[
       node distance=5mm and 9mm,
-      pstep/.style={draw=tfxblue,fill=tfxblue!8,rounded corners=3pt,
-                   align=center,minimum width=3.0cm,minimum height=1.05cm,font=\small},
-      arr/.style={-{Stealth[length=2.2mm]},thick,tfxblue}]
-    \node[pstep] (a) {\textbf{Observe}\\ triangle = 3 lines};
-    \node[pstep,right=of a] (b) {\textbf{Model}\\ line: $Ax+By=C$};
-    \node[pstep,right=of b] (c) {\textbf{Generalise}\\ rows of $A\mathbf{x}=\mathbf{b}$};
-    \node[pstep,below=of a] (d) {\textbf{Solve}\\ $2\times2$ per line pair};
-    \node[pstep,right=of d] (e) {\textbf{Verify}\\ distinct, non-flat};
-    \node[pstep,right=of e] (f) {\textbf{Present}\\ scale and draw};
-    \draw[arr] (a)--(b); \draw[arr] (b)--(c);
-    \draw[arr] (c.south) -- ++(0,-2.5mm) -| ($(d.north)+(0,0)$);
-    \draw[arr] (d)--(e); \draw[arr] (e)--(f);
+      pstep/.style={
+        draw=tfxblue,
+        fill=tfxblue!8,
+        rounded corners=3pt,
+        align=center,
+        minimum width=3.0cm,
+        minimum height=1.05cm,
+        font=\small
+      },
+      arr/.style={
+        -{Stealth[length=2.2mm]},
+        thick,
+        tfxblue
+      }
+    ]
+
+    \node[pstep] (a)
+      {\textbf{Represent}\\3 lines as equations};
+
+    \node[pstep,right=of a] (b)
+      {\textbf{Input}\\matrix of coefficients};
+
+    \node[pstep,right=of b] (c)
+      {\textbf{Find}\\pairwise intersections};
+
+    \node[pstep,below=of a] (d)
+      {\textbf{Validate}\\parallel, duplicates, zero area};
+
+    \node[pstep,right=of d] (e)
+      {\textbf{Visualize}\\draw \& measure};
+
+    \draw[arr] (a)--(b);
+    \draw[arr] (b)--(c);
+
+    \draw[arr]
+  (c.south) -- ++(0,-2.5mm)
+  -| ($(d.north)+(0,0)$);
+
+    \draw[arr] (d)--(e);
+
   \end{tikzpicture}
   \end{center}
+
   \vspace{-2mm}
+
   \begin{columns}[T]
+
     \column{0.48\textwidth}
-      \textbf{Key decisions}
+
+      \textbf{Principles}
+
       \begin{itemize}
-        \item Matrix input is unambiguous; no free-text algebra needed in the UI
-        \item Keep math \textbf{independent of JavaFX} so it is unit-testable
-        \item Treat invalid geometry as a first-class, explained outcome
+        \item Represent the three lines using a structured
+              \textbf{3$\times$2 matrix + 3 constants}
+        \item Keep mathematical logic \textbf{separate from the UI}
+        \item Treat invalid geometry as an expected outcome
       \end{itemize}
+
     \column{0.48\textwidth}
-      \textbf{Alternatives considered}
+
+      \textbf{How We Built It}
+
       \begin{itemize}
-        \item Parsing typed equations (\texttt{x + y = 8}): kept as an optional
-              \texttt{EquationParser}, not the primary path
-        \item Solving a $3\times2$ system directly: over-determined in general,
-              so we solve \emph{pairs} instead
+        \item Support direct matrix input and predefined presets
+        \item Solve each pair of lines independently
+        \item Automatically scale the canvas to display the triangle
       \end{itemize}
+
   \end{columns}
+
 \end{frame}
 
 % ---------------------------------------------------------------- 4 -------
@@ -179,6 +283,7 @@
       \end{exampleblock}
   \end{columns}
 \end{frame}
+    
 
 % ---------------------------------------------------------------- 5 -------
 \begin{frame}{4. The Solution: Layered Architecture}
@@ -219,7 +324,6 @@
       \end{block}
   \end{columns}
 \end{frame}
-
 % ---------------------------------------------------------------- 6 -------
 \begin{frame}[fragile]{5. Solution Walk-through: Validation Pipeline}
   \begin{columns}[T]
