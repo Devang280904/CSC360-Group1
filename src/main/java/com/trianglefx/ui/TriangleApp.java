@@ -58,6 +58,11 @@ public class TriangleApp extends Application {
     /** 3 rows by 1 column of input text boxes for Vector B target constants. */
     private final TextField[] bVectorFields = new TextField[3];
 
+    /** Optional text box where users can paste raw matrix text or numbers. */
+    private TextArea rawMatrixArea;
+    /** Expandable container holding the paste area. */
+    private VBox rawMatrixBox;
+
     /** Badge label displaying understood Line 1 equation. */
     private Label eq1UnderstoodLabel;
     /** Badge label displaying understood Line 2 equation. */
@@ -153,6 +158,9 @@ public class TriangleApp extends Application {
 
         // Matrix Equation Input Section
         VBox matrixEquationCard = createMatrixEquationCard();
+
+        // Raw matrix paste toggle & box
+        VBox pasteSection = createRawPasteSection();
 
         // Action buttons
         Button generateBtn = new Button("Generate Diagram");
@@ -260,6 +268,7 @@ public class TriangleApp extends Application {
                 titleBox,
                 new Separator(),
                 matrixEquationCard,
+                pasteSection,
                 btnBox,
                 understoodEquationsCard,
                 new VBox(6, presetHeader, presetCombo),
@@ -398,6 +407,53 @@ public class TriangleApp extends Application {
         return lbl;
     }
 
+    /**
+     * Creates an optional expandable panel where users can paste raw matrix text.
+     *
+     * @return the container {@link VBox}
+     */
+    private VBox createRawPasteSection() {
+        Button togglePasteBtn = new Button("Paste Raw Matrix Text ▼");
+        togglePasteBtn.setMaxWidth(Double.MAX_VALUE);
+        togglePasteBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #60A5FA; -fx-font-size: 11px; -fx-cursor: hand; -fx-padding: 2px;");
+
+        rawMatrixArea = new TextArea();
+        rawMatrixArea.setPromptText("Paste 9 numbers or format e.g.:\n1, 1, 8\n1, -1, 2\n1, 0, 1\nor: [[1,1],[1,-1],[1,0]], [8,2,1]");
+        rawMatrixArea.setPrefRowCount(3);
+        rawMatrixArea.setStyle("-fx-control-inner-background: #111827; -fx-font-family: 'Monospaced'; -fx-font-size: 11px; -fx-text-fill: #E5E7EB;");
+
+        Button loadPasteBtn = new Button("Apply Pasted Values");
+        loadPasteBtn.setStyle("-fx-background-color: #374151; -fx-text-fill: #E5E7EB; -fx-font-size: 11px; -fx-padding: 4px 10px; -fx-background-radius: 4px;");
+        loadPasteBtn.setOnAction(e -> applyPastedMatrix());
+
+        rawMatrixBox = new VBox(6, rawMatrixArea, loadPasteBtn);
+        rawMatrixBox.setVisible(false);
+        rawMatrixBox.setManaged(false);
+
+        togglePasteBtn.setOnAction(e -> {
+            boolean visible = !rawMatrixBox.isVisible();
+            rawMatrixBox.setVisible(visible);
+            rawMatrixBox.setManaged(visible);
+            togglePasteBtn.setText(visible ? "Hide Paste Area ▲" : "Paste Raw Matrix Text ▼");
+        });
+
+        return new VBox(4, togglePasteBtn, rawMatrixBox);
+    }
+
+    /**
+     * Reads text pasted into the raw text box, validates the 9 numbers, and fills the matrix grid.
+     */
+    private void applyPastedMatrix() {
+        String text = rawMatrixArea.getText();
+        try {
+            MatrixParser.ParsedMatrix pm = MatrixParser.parse(text);
+            loadMatrixPreset(pm.getA(), pm.getB());
+            showSuccess("Parsed 3x2 Matrix A and 3x1 Vector B into grid!");
+            handleGenerate();
+        } catch (ParseException e) {
+            showError(e.getMessage());
+        }
+    }
 
     /**
      * Creates the card displaying the three standard line equations decoded from the matrix.
@@ -588,6 +644,7 @@ public class TriangleApp extends Application {
         eq1UnderstoodLabel.setText("Line 1: —");
         eq2UnderstoodLabel.setText("Line 2: —");
         eq3UnderstoodLabel.setText("Line 3: —");
+        rawMatrixArea.clear();
         triangleCanvas.clear();
         statusLabel.setVisible(false);
         infoCard.setVisible(false);
