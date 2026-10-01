@@ -14,6 +14,19 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [Setup and Run](#-setup-and-run)
+- [What Does It Do?](#-what-does-it-do)
+- [How the Math Works](#-how-the-math-works)
+- [Features](#-features)
+- [How the Code is Organized](#-how-the-code-is-organized)
+- [Entering Numbers](#-entering-numbers)
+- [Step-by-Step Flow](#-step-by-step-flow)
+- [Project Folders](#-project-folders)
+
+---
+
 ## 🚀 Setup and Run
 
 ### What You Need
@@ -47,19 +60,6 @@ Packages everything into a `.jar` file in the `target/` folder:
 ```bash
 mvn clean package
 ```
-
----
-
-## 📑 Table of Contents
-
-- [Setup and Run](#-setup-and-run)
-- [What Does It Do?](#-what-does-it-do)
-- [How the Math Works](#-how-the-math-works)
-- [Features](#-features)
-- [How the Code is Organized](#-how-the-code-is-organized)
-- [Entering Numbers](#-entering-numbers)
-- [Step-by-Step Flow](#-step-by-step-flow)
-- [Project Folders](#-project-folders)
 
 ---
 
