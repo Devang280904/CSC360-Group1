@@ -327,40 +327,48 @@
 % ---------------------------------------------------------------- 6 -------
 \begin{frame}[fragile]{5. Solution Walk-through: Validation Pipeline}
   \begin{columns}[T]
-    \column{0.40\textwidth}
+    \column{0.41\textwidth}
       \small
-      \begin{enumerate}
-        \item \textbf{Pair check} (3 pairs): identical or parallel $\to$ error
-        \item \textbf{Intersect} each pair (Cramer)
-        \item \textbf{Concurrency}: two vertices within tolerance $\to$ error
-        \item \textbf{Area}: if $\Delta<10^{-6}\to$ error
-        \item Return the verified \texttt{Triangle}
+      \textbf{Fail-Fast Validation Pipeline:}
+      \begin{enumerate}\setlength{\itemsep}{0.5pt}\setlength{\parskip}{0pt}
+        \item \textbf{Pairwise check}: Reject parallel ($D=0$) or coincident lines.
+        \item \textbf{Cramer's intersection}: Compute vertices $(P_{12}, P_{23}, P_{31})$.
+        \item \textbf{Concurrency check}: If $P_{12} \approx P_{23}$, lines cross at 1 point ($\epsilon = 10^{-6}$).
+        \item \textbf{Collinearity / Area}: Reject flat triangle if $\Delta < 10^{-6}$.
+        \item Return immutable \texttt{Triangle}.
       \end{enumerate}
-      \vspace{2pt}
-      Every failure carries a human-readable message naming the
-      offending lines.
+      \vspace{1pt}
+      \begin{alertblock}{Defensive Engineering}
+        \footnotesize
+        Eliminates division-by-zero ($D=0$) early; tolerances protect against IEEE-754 precision limits.
+      \end{alertblock}
+
     \column{0.57\textwidth}
-\begin{lstlisting}[basicstyle=\ttfamily\fontsize{6.5}{8}\selectfont,breaklines=false,xleftmargin=2pt,xrightmargin=2pt]
-Triangle buildTriangle(Line l1, Line l2, Line l3)
+\begin{lstlisting}[basicstyle=\ttfamily\fontsize{5.5}{6.8}\selectfont,breaklines=false,xleftmargin=1pt,xrightmargin=1pt]
+public Triangle buildTriangle(Line l1, Line l2, Line l3)
     throws GeometryException {
-  // 1. reject identical / parallel pairs
+  // 1. Fail-fast: reject parallel / identical pairs
   checkPair(l1, l2, 1, 2);
   checkPair(l2, l3, 2, 3);
   checkPair(l3, l1, 3, 1);
 
-  // 2. the three vertices
-  Point p12 = l1.intersectionWith(l2).orElseThrow(..);
-  Point p23 = l2.intersectionWith(l3).orElseThrow(..);
-  Point p31 = l3.intersectionWith(l1).orElseThrow(..);
+  // 2. Pairwise intersection via Cramer's rule
+  Point p12 = l1.intersectionWith(l2).orElseThrow();
+  Point p23 = l2.intersectionWith(l3).orElseThrow();
+  Point p31 = l3.intersectionWith(l1).orElseThrow();
 
-  // 3. concurrency: coincident vertices
-  if (p12.equalsWithTolerance(p23, TOL) || ..)
-    throw new GeometryException("concurrent");
+  // 3. Concurrency check (tolerance = 1e-6)
+  if (p12.equalsWithTolerance(p23, TOL) ||
+      p23.equalsWithTolerance(p31, TOL) ||
+      p31.equalsWithTolerance(p12, TOL)) {
+    throw new GeometryException("Lines are concurrent.");
+  }
 
-  // 4. degenerate (near-zero area)
+  // 4. Area threshold check (reject degenerate/flat)
   Triangle t = new Triangle(p12, p23, p31, l1, l2, l3);
-  if (t.getArea() < MIN_AREA)
-    throw new GeometryException("collapsed");
+  if (t.getArea() < MIN_AREA) {
+    throw new GeometryException("Collapsed triangle.");
+  }
   return t;
 }
 \end{lstlisting}
@@ -371,32 +379,41 @@ Triangle buildTriangle(Line l1, Line l2, Line l3)
 \begin{frame}{6. Rendering: World-to-Screen Mapping}
   \begin{columns}[T]
     \column{0.52\textwidth}
-      The canvas fits the triangle to any window size using a single
-      uniform scale, so shapes are never distorted:
-      \[
-        X_{\text{px}} = \tfrac{w}{2} + (x - x_c)\,s
-      \]
-      \[
-        Y_{\text{px}} = \tfrac{h}{2} - (y - y_c)\,s
-      \]
-      \begin{itemize}
-        \item $(x_c,y_c)$: centre of the bounding box; $s$: pixels per unit
-        \item The minus sign flips $y$ (screen $y$ grows downward)
-        \item Grid, axes, lines, fill, and labelled vertices drawn in order
+      \small
+      \textbf{Window-to-Viewport Transformation}
+      \begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
+        \item \textbf{World Space}: $(0,0)$ Cartesian center, $+y$ points \textbf{UP}
+        \item \textbf{Screen Space}: $(0,0)$ Top-Left corner, $+y$ points \textbf{DOWN}
       \end{itemize}
-    \column{0.44\textwidth}
+      \[
+        X_{\text{px}} = \tfrac{W}{2} + (x - x_c)\cdot s, \quad
+        Y_{\text{px}} = \tfrac{H}{2} - (y - y_c)\cdot s
+      \]
+      \textbf{Uniform Scaling \& Margins (Aspect 1:1)}:
+      \[
+        s = \min\left(\frac{W - 80}{\text{span}_x \cdot 1.7}, \; \frac{H - 80}{\text{span}_y \cdot 1.7}\right)
+      \]
+      \vspace{-2pt}
+      \begin{block}{Painter's Algorithm Pipeline}
+        \footnotesize
+        Grid $\to$ Axes $\to$ Extended Dashed Lines $\to$ Alpha Fill ($\alpha=0.25$) $\to$ Stroke $\to$ Vertex Badges (radial offset).
+      \end{block}
+
+    \column{0.46\textwidth}
       \begin{center}
-      \begin{tikzpicture}[scale=0.42,>=Stealth]
-        \draw[step=1,gray!40,very thin] (-1,-2) grid (7,8);
-        \draw[->,thick] (-1,0)--(7.4,0) node[right]{\scriptsize $x$};
-        \draw[->,thick] (0,-2)--(0,8.4) node[above]{\scriptsize $y$};
+      \begin{tikzpicture}[scale=0.38,>=Stealth]
+        \draw[step=1,gray!35,very thin] (-1,-2) grid (7,8);
+        \draw[->,thick] (-1,0)--(7.4,0) node[right]{\scriptsize $+x$};
+        \draw[->,thick] (0,-2)--(0,8.4) node[above]{\scriptsize $+y$};
+        \draw[->,dashed,tfxred,thick] (-0.7,7.8)--(-0.7,5.0) node[midway,left]{\tiny Screen $+Y$};
         \fill[tfxblue,opacity=0.25] (5,3)--(1,-1)--(1,7)--cycle;
         \draw[tfxblue,thick] (5,3)--(1,-1)--(1,7)--cycle;
         \foreach \p/\l/\pos in {(5,3)/A/right,(1,-1)/B/below,(1,7)/C/above}
           \fill[tfxred] \p circle(3pt) node[\pos]{\scriptsize $\l$};
       \end{tikzpicture}
 
-      {\scriptsize Default example: $A(5,3),\,B(1,-1),\,C(1,7)$}
+      \vspace{2pt}
+      {\scriptsize Vertices: $A(5,3),\,B(1,-1),\,C(1,7)$ (radial label offset from $G$)}
       \end{center}
   \end{columns}
 \end{frame}
