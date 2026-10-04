@@ -161,7 +161,7 @@ public class Line {
     }
     // If they slope the same, check if their constant offsets match proportionally
     double detAC = this.a * other.c - other.a * this.c;
-    double detBC = this.b * other.c - other.c * this.b;
+    double detBC = this.b * other.c - other.b * this.c;
     return Math.abs(detAC) < EPSILON && Math.abs(detBC) < EPSILON;
   }
 
