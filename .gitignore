@@ -9,3 +9,4 @@ target/
 .classpath
 mvn/
 *.zip
+docs/
