@@ -5,11 +5,11 @@
 ---
 
 <p align="center">
-  <img src="resources/Screenshot%202026-09-29%20at%2014.46.21.png" alt="TriangleFX - Matrix Input and Visualization" width="100%" />
+  <img src="resources/Output1.png" alt="TriangleFX - Matrix Input and Visualization" width="100%" />
 </p>
 
 <p align="center">
-  <img src="resources/Screenshot%202026-09-29%20at%2014.46.35.png" alt="TriangleFX - Properties and Equations" width="100%" />
+  <img src="resources/Output2.png" alt="TriangleFX - Properties and Equations" width="100%" />
 </p>
 
 ---
