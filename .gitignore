@@ -7,3 +7,5 @@ target/
 .settings/
 .project
 .classpath
+mvn/
+*.zip
