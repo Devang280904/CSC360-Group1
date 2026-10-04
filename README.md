@@ -35,6 +35,7 @@
 - **Apache Maven** — version 3.8 or higher
 
 Check if they're installed:
+
 ```bash
 java -version
 mvn -version
@@ -43,6 +44,7 @@ mvn -version
 ### Launch the App
 
 Opens the interactive window:
+
 ```bash
 mvn clean javafx:run
 ```
@@ -50,6 +52,7 @@ mvn clean javafx:run
 ### Run the Tests
 
 Checks that all math calculations work correctly:
+
 ```bash
 mvn test
 ```
@@ -57,6 +60,7 @@ mvn test
 ### Build a Runnable File
 
 Packages everything into a `.jar` file in the `target/` folder:
+
 ```bash
 mvn clean package
 ```
@@ -115,6 +119,7 @@ D = (a1·b2) - (a2·b1)
 - If **D ≠ 0** → the lines cross at one point, found using simple division.
 
 The three corners are:
+
 - **C** — where Line 1 meets Line 2
 - **A** — where Line 2 meets Line 3
 - **B** — where Line 3 meets Line 1
@@ -153,13 +158,13 @@ If the area is greater than 0, the triangle is drawn. Otherwise, a clear message
 
 ## 🏛️ How the Code is Organized
 
-| Package | Files | Role |
-| :--- | :--- | :--- |
-| `model` | `Point`, `Line`, `Triangle` | Basic building blocks — dots, lines, triangles. |
-| `geometry` | `GeometryService`, `GeometryException` | Does the math — finds crossings, checks validity. |
-| `parser` | `EquationParser`, `MatrixParser`, `ParseException` | Reads typed text and pulls out the numbers. |
-| `ui` | `TriangleApp`, `TriangleCanvas` | Builds the window and draws the graph. |
-| root | `Main` | Starts the app. |
+| Package      | Files                                                    | Role                                               |
+| :----------- | :------------------------------------------------------- | :------------------------------------------------- |
+| `model`    | `Point`, `Line`, `Triangle`                        | Basic building blocks — dots, lines, triangles.   |
+| `geometry` | `GeometryService`, `GeometryException`               | Does the math — finds crossings, checks validity. |
+| `parser`   | `EquationParser`, `MatrixParser`, `ParseException` | Reads typed text and pulls out the numbers.        |
+| `ui`       | `TriangleApp`, `TriangleCanvas`                      | Builds the window and draws the graph.             |
+| root         | `Main`                                                 | Starts the app.                                    |
 
 ---
 
@@ -169,8 +174,8 @@ If the area is greater than 0, the triangle is drawn. Otherwise, a clear message
 
 Fill in 3 rows of boxes:
 
-| Row | x-tilt | y-tilt | Target | Line it represents |
-| :---: | :---: | :---: | :---: | :--- |
+|       Row       | x-tilt | y-tilt | Target | Line it represents   |
+| :-------------: | :-----: | :-----: | :----: | :------------------- |
 | **Row 1** | `a11` | `a12` | `b1` | a11·x + a12·y = b1 |
 | **Row 2** | `a21` | `a22` | `b2` | a21·x + a22·y = b2 |
 | **Row 3** | `a31` | `a32` | `b3` | a31·x + a32·y = b3 |
@@ -184,9 +189,11 @@ You can paste numbers in several formats:
 1, -1, 2
 1, 0, 1
 ```
+
 ```text
 [[1, 1], [1, -1], [1, 0]], [8, 2, 1]   ← bracket style
 ```
+
 ```text
 1 1 8 1 -1 2 1 0 1   ← plain list of 9 numbers
 ```
