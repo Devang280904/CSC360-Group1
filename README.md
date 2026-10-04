@@ -187,13 +187,13 @@ Here is what happens when you click **"Generate Diagram"**:
 ```text
   ┌────────────────────────────────────────────────────────┐
   │               1. Enter 9 Numbers                       │
-  │      (type or pick a preset)                           │
+  │             (type or pick a preset)                    │
   └───────────────────────────┬────────────────────────────┘
                               │
                               ▼
   ┌────────────────────────────────────────────────────────┐
   │               2. Read the Numbers                      │
-  │         Turns them into 3 Line objects                 │
+  │           Turns them into 3 Line objects               │
   └───────────────────────────┬────────────────────────────┘
                               │
                               ▼
