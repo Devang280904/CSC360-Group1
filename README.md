@@ -148,7 +148,6 @@ If the area is greater than 0, the triangle is drawn. Otherwise, a clear message
   - *Right* — has a perfect 90° corner.
   - *Equilateral-like* — all sides roughly equal.
   - *Oblique* — no right angles; tilted and irregular.
-- **Paste from clipboard** — supports formats like `1, 1, 8` or `[[1,1],[1,-1],[1,0]], [8,2,1]`.
 - **Live equation display** — shows your numbers as readable equations (e.g. `L1: x + y = 8`).
 - **Measurements panel** — corner coordinates, side lengths, perimeter, and area.
 - **Smart graph canvas** — auto-zooms to fit, draws axes and grid, marks corners with labels.
@@ -180,25 +179,6 @@ Fill in 3 rows of boxes:
 | **Row 2** | `a21` | `a22` | `b2` | a21·x + a22·y = b2 |
 | **Row 3** | `a31` | `a32` | `b3` | a31·x + a32·y = b3 |
 
-### Pasting Text
-
-You can paste numbers in several formats:
-
-```text
-1, 1, 8           ← one row per line
-1, -1, 2
-1, 0, 1
-```
-
-```text
-[[1, 1], [1, -1], [1, 0]], [8, 2, 1]   ← bracket style
-```
-
-```text
-1 1 8 1 -1 2 1 0 1   ← plain list of 9 numbers
-```
-
----
 
 ## 🔄 Step-by-Step Flow
 
@@ -207,7 +187,7 @@ Here is what happens when you click **"Generate Diagram"**:
 ```text
   ┌────────────────────────────────────────────────────────┐
   │               1. Enter 9 Numbers                       │
-  │      (type, pick a preset, or paste from clipboard)    │
+  │      (type or pick a preset)                           │
   └───────────────────────────┬────────────────────────────┘
                               │
                               ▼
