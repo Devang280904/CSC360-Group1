@@ -161,7 +161,7 @@ If the area is greater than 0, the triangle is drawn. Otherwise, a clear message
 | :----------- | :------------------------------------------------------- | :------------------------------------------------- |
 | `model`    | `Point`, `Line`, `Triangle`                        | Basic building blocks — dots, lines, triangles.   |
 | `geometry` | `GeometryService`, `GeometryException`               | Does the math — finds crossings, checks validity. |
-| `parser`   | `EquationParser`, `MatrixParser`, `ParseException` | Reads typed text and pulls out the numbers.        |
+| `parser`   | `MatrixParser`, `ParseException`                     | Reads matrix numbers from text and input fields.   |
 | `ui`       | `TriangleApp`, `TriangleCanvas`                      | Builds the window and draws the graph.             |
 | root         | `Main`                                                 | Starts the app.                                    |
 
@@ -224,10 +224,11 @@ Here is what happens when you click **"Generate Diagram"**:
 
 ```text
 CSC360-Group1/
-├── docs/
-│   └── presentation/               # Slide deck files
 ├── pom.xml                         # Build configuration
 ├── README.md                       # This file
+├── resources/                      # Screenshots and images
+│   ├── Output1.png
+│   └── Output2.png
 └── src/
     ├── main/
     │   └── java/com/trianglefx/
@@ -240,10 +241,8 @@ CSC360-Group1/
     │       │   ├── Point.java             # A point on the graph (x, y)
     │       │   └── Triangle.java          # A triangle with its measurements
     │       ├── parser/
-    │       │   ├── EquationParser.java    # Reads equation text
     │       │   ├── MatrixParser.java      # Reads number grids from text
     │       │   └── ParseException.java    # Error messages for bad input
-    │       ├── resources/                 # Screenshots and images
     │       └── ui/
     │           ├── TriangleApp.java       # Window layout and controls
     │           └── TriangleCanvas.java    # Draws the graph and triangle
@@ -252,6 +251,5 @@ CSC360-Group1/
             ├── geometry/
             │   └── GeometryServiceTest.java    # Tests for math calculations
             └── parser/
-                ├── EquationParserTest.java     # Tests for reading equations
                 └── MatrixParserTest.java       # Tests for reading numbers
 ```
