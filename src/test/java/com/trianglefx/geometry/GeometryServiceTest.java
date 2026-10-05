@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.trianglefx.model.Point;
 import com.trianglefx.model.Triangle;
-import com.trianglefx.parser.ParseException;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -34,12 +33,19 @@ public class GeometryServiceTest {
    *
    * <p>Expected corners: (5, 3), (1, -1), and (1, 7). Expected area = 16.00.
    *
-   * @throws ParseException if equations cannot be parsed
    * @throws GeometryException if geometry calculations fail
    */
   @Test
-  public void testProblemStatementExample() throws ParseException, GeometryException {
-    Triangle triangle = service.buildTriangle("x + y = 8", "x - y = 2", "x = 1");
+  public void testProblemStatementExample() throws GeometryException {
+    // x + y = 8,  x - y = 2,  x + 0y = 1
+    double[][] A = {
+      {1.0, 1.0},
+      {1.0, -1.0},
+      {1.0, 0.0}
+    };
+    double[] b = {8.0, 2.0, 1.0};
+
+    Triangle triangle = service.buildTriangle(A, b);
 
     assertNotNull(triangle);
     assertFalse(triangle.isDegenerate());
@@ -131,10 +137,16 @@ public class GeometryServiceTest {
    */
   @Test
   public void testParallelLines() {
+    // x + y = 5,  x + y = 10,  x + 0y = 1
+    double[][] A = {
+      {1.0, 1.0},
+      {1.0, 1.0},
+      {1.0, 0.0}
+    };
+    double[] b = {5.0, 10.0, 1.0};
+
     GeometryException ex =
-        assertThrows(
-            GeometryException.class,
-            () -> service.buildTriangle("x + y = 5", "x + y = 10", "x = 1"));
+        assertThrows(GeometryException.class, () -> service.buildTriangle(A, b));
     assertTrue(ex.getMessage().contains("parallel"));
   }
 
@@ -144,10 +156,16 @@ public class GeometryServiceTest {
    */
   @Test
   public void testCoincidentLines() {
+    // x + y = 5,  2x + 2y = 10,  x + 0y = 1
+    double[][] A = {
+      {1.0, 1.0},
+      {2.0, 2.0},
+      {1.0, 0.0}
+    };
+    double[] b = {5.0, 10.0, 1.0};
+
     GeometryException ex =
-        assertThrows(
-            GeometryException.class,
-            () -> service.buildTriangle("x + y = 5", "2x + 2y = 10", "x = 1"));
+        assertThrows(GeometryException.class, () -> service.buildTriangle(A, b));
     assertTrue(ex.getMessage().contains("identical") || ex.getMessage().contains("coincident"));
   }
 
@@ -157,26 +175,40 @@ public class GeometryServiceTest {
    */
   @Test
   public void testConcurrentLines() {
+    // y = x  → -x + y = 0,  y = -x  → x + y = 0,  y = 0  → 0x + y = 0
+    double[][] A = {
+      {-1.0, 1.0},
+      {1.0, 1.0},
+      {0.0, 1.0}
+    };
+    double[] b = {0.0, 0.0, 0.0};
+
     GeometryException ex =
-        assertThrows(
-            GeometryException.class, () -> service.buildTriangle("y = x", "y = -x", "y = 0"));
+        assertThrows(GeometryException.class, () -> service.buildTriangle(A, b));
     assertTrue(ex.getMessage().contains("concurrent"));
   }
 
   /**
    * Tests construction of a right-angled triangle with known area and perimeter.
    *
-   * @throws ParseException if parsing fails
    * @throws GeometryException if geometry calculation fails
    */
   @Test
-  public void testRightTriangle() throws ParseException, GeometryException {
-    // x = 0 (Y-axis), y = 0 (X-axis), x + y = 4
+  public void testRightTriangle() throws GeometryException {
+    // x = 0 (Y-axis) → 1x + 0y = 0, y = 0 (X-axis) → 0x + 1y = 0, x + y = 4
     // Corners at (0, 0), (0, 4), (4, 0). Legs = 4, 4. Hypotenuse = sqrt(32). Area = 0.5 * 4 * 4 =
     // 8.
-    Triangle t = service.buildTriangle("x = 0", "y = 0", "x + y = 4");
+    double[][] A = {
+      {1.0, 0.0},
+      {0.0, 1.0},
+      {1.0, 1.0}
+    };
+    double[] b = {0.0, 0.0, 4.0};
+
+    Triangle t = service.buildTriangle(A, b);
     assertNotNull(t);
     assertEquals(8.0, t.getArea(), EPSILON);
     assertEquals(4.0 + 4.0 + Math.sqrt(32.0), t.getPerimeter(), EPSILON);
   }
 }
+

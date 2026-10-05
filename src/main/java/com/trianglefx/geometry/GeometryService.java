@@ -3,15 +3,13 @@ package com.trianglefx.geometry;
 import com.trianglefx.model.Line;
 import com.trianglefx.model.Point;
 import com.trianglefx.model.Triangle;
-import com.trianglefx.parser.EquationParser;
-import com.trianglefx.parser.ParseException;
 
 /**
  * The mathematician engine of the application.
  *
- * <p>This service takes your input numbers—either as a 3x2 matrix A and 3x1 vector B or as 3 linear
- * equation strings—turns them into physical straight lines, finds where those lines cross to form
- * corners, checks all safety rules, and returns a verified {@link Triangle}.
+ * <p>This service takes your input numbers as a 3x2 matrix A and 3x1 vector B, turns them into
+ * physical straight lines, finds where those lines cross to form corners, checks all safety rules,
+ * and returns a verified {@link Triangle}.
  *
  * <p>How the math works step-by-step: - Step 1 (Row to Line): Each row in the matrix system
  * represents one straight line: Row 1 is {@code a11*x + a12*y = b1}, Row 2 is {@code a21*x + a22*y
@@ -42,28 +40,6 @@ public class GeometryService {
   /** Creates a new geometry calculation service. */
   public GeometryService() {
     // Default constructor
-  }
-
-  /**
-   * Builds a real triangle from 3 typed equation strings (e.g. {@code "x + y = 8"}, {@code "x - y =
-   * 2"}, {@code "x = 1"}).
-   *
-   * @param eq1 the text of the first line equation
-   * @param eq2 the text of the second line equation
-   * @param eq3 the text of the third line equation
-   * @return a verified, non-flat {@link Triangle}
-   * @throws ParseException if an equation has spelling mistakes, invalid characters, or missing
-   *     equals signs
-   * @throws GeometryException if the lines are parallel, identical, cross at one point, or form a
-   *     flat triangle
-   */
-  public Triangle buildTriangle(String eq1, String eq2, String eq3)
-      throws ParseException, GeometryException {
-    Line l1 = EquationParser.parse(eq1);
-    Line l2 = EquationParser.parse(eq2);
-    Line l3 = EquationParser.parse(eq3);
-
-    return buildTriangle(l1, l2, l3);
   }
 
   /**
